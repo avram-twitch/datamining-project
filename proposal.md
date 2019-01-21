@@ -17,7 +17,7 @@ In musical criticism, there are commonly accepted narratives as to how certain
 artists or genres influence each other. We want to see if there exists
 a quantifiable structure to these influences. We will do this by examining
 similarities in lyrics and musical characteristics such as tempo, to see if
-relationships exist along between artists, genres, and the year, that coincides
+relationships exist between artists, genres, and the year, that coincides
 with these commonly accepted narratives.
 
 

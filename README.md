@@ -7,7 +7,7 @@ Angel Dhungana, Avram Twitchell
 ## Assignment Overview
 
 A collaborative for project for CS 6140 for Spring 2019.
-The goal is to perform data mining on some real data set, 
+The objective is to perform data mining on some real data set, 
 with the goal to gain in depth experience in some aspect of the class,
 in a setting where the instructor can give guidance.
 The student is meant to demonstrate a deep understanding of some aspect of data mining.

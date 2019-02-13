@@ -51,6 +51,17 @@ We will be performing clustering in a hope of finding the similarities among mus
 
 Our data which includes the songs and their audio features will be stored as a matrix. Every track/genre/year/ would be a row, and their audio features will be represented as columns. 
 
+ <!--
+     Avram Comment
+     * Talk about how we want to avoid grouping unlike variables together,
+       because they wouldn't be "like" terms
+     * Talk about how we will therefore have to run separate clusterings for different variables
+     * Maybe relate back to what I said above, about creating k-grams out of each variable
+     * Maybe talk about how your matrices will be sparse, so we may look into ways of
+       representing the data in a more condense form (libsvm?)
+ -->
+
+<!-- Move the paragraph below to the final section -->
 We hope to find a structure underlying the data. Then, we will be using random generation to generate a sample from the assumed structure. We will be using this simulation of similar random data to validate how well our technique actually worked.
 
 # Did you process the original data?
@@ -65,3 +76,12 @@ Our data is sparse, so we want to be careful that
 the format we use avoids taking up too much space, 
 but is still easy to use across our various analyses
 
+# How would you simulate the data?
+
+<!--
+    Avram Comment
+    * Talk about how different variables may be over different ranges, so we would
+      take that into account when generating them
+    * Also, talk about how songs are of different lengths, and how we would have to
+      ensure that the arrays that represent each variable are of the correct length
+-->

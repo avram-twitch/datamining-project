@@ -1,5 +1,5 @@
 *MillionSongSubset/
 *.h5
 __pycache__
-data/
-raw_data/
+*.pdf
+*.pkl

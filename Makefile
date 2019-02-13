@@ -10,3 +10,7 @@ process-raw:
 lint:
 	flake8
 	
+.PHONY: docs
+docs:
+	pandoc -s -o ./docs/data_collection.pdf ./docs/data_collection.md
+	pandoc -s -o ./docs/proposal.pdf ./docs/proposal.md

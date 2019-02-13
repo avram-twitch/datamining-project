@@ -49,8 +49,9 @@ and words that the song contains.
 
 We will be performing clustering in a hope of finding the similarities among music. We want to see if there exists a relationship between artists, genres and the year. 
 
-We will be using various audio features including tempo, loudness, key etc. to cluster the songs into labels defined using Hierarchical Clustering. We will be able to see cross-genre similarities and influences of one song/artists into other. 
+We will be using various audio features including tempo, loudness, key etc. to cluster the songs into labels defined using Hierarchical Clustering. We will have to  run separate clusters for each different variables because they differ from each other. We will be able to see cross-genre similarities and influences of one song/artists into other. 
 
+Our data which includes the songs and their audio features will be stored as a matrix. Every track/genre/year/ would be a row, and their audio features will be represented as columns. The matrix however could be sparse, hence we might use some parallel techniques to quicken the clustering process or may be look into ways of representing the data in more condense form by using libraries like LIBSVM. 
  <!--
      Avram Comment
      * Talk about how we want to avoid grouping unlike variables together,
@@ -62,9 +63,6 @@ We will be using various audio features including tempo, loudness, key etc. to c
  -->
 
 <!-- Move the paragraph below to the final section -->
-We hope to find a structure underlying the data. Then, we will be using random generation to generate a sample from the assumed structure. We will be using this simulation of similar random data to validate how well our technique actually worked.
-
-Our data which includes the songs and their audio features will be stored as a matrix. Every track/genre/year/ would be a row, and their audio features will be represented as columns. 
 
 # Did you process the original data?
 
@@ -86,8 +84,7 @@ but is still easy to use across our various analyses
     * Also, talk about how songs are of different lengths, and how we would have to
       ensure that the arrays that represent each variable are of the correct length
 -->
-We hope to find a structure underlying the data. Not only that, we will be identifying a distribution function of the data from the underlying structure. 
+We hope to find a structure underlying the data. Not only that, we will be identifying a distribution function of the data from the underlying structure. Then, we will be using the "random generation" model to generate a sample from the assumed distribution.This acquired model will be utilized to predict future data patterns and to validate how well our technique actually worked.
 
-Then, we will be using the "random generation" model to generate a sample from the assumed distribution.This acquired model will be utilized to predict future data patterns and to validate how well our technique actually worked. 
-
-For tracks dataset, we might model the data over ranges of audio features like loudness, key etc. And for the lyrics dataset, we might model the data over most common words. 
+For tracks dataset, we might model the data over ranges of audio features like loudness, key etc. The variables may be over different ranges. Hence, we will be taking that in account when generating them.
+And for the lyrics dataset, we might model the data over most common words. Each songs are of different lengths. Hence, we will need to consider the arrays that represent each variable are of the correct length. 

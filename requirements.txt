@@ -1,0 +1,5 @@
+#### Dependencies
+h5py==2.9.0
+
+#### Development
+flake8==3.7.4

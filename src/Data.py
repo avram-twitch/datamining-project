@@ -24,7 +24,7 @@ class Data:
                 they are downloaded as a pickled file
         :param dump_dir: folder path to directory where pickled files
                 will be stored
-        :returns: None
+        :return: None
         """
 
         (self.track_to_id,
@@ -41,19 +41,39 @@ class Data:
             data.append(processed)
             if counter % chunks == 0:
                 file_count += 1
-                out_file = dump_dir + "data_" + str(file_count) + ".pkl"
-                print("Saving %s songs to %s" % (str(chunks), out_file))
-                with open(out_file, 'wb') as g:
-                    pickle.dump(data, g)
+                dump_fp = self._generate_dump_filepath(dump_dir, file_count)
+                print("Saving %s songs to %s" % (str(chunks), dump_fp))
+                self._dump_data(dump_fp, data)
                 del data
                 data = []
+
+    def _dump_data(self, dump_fp, data):
+        """
+        Helper function to dump data.
+
+        :param dump_fp: Filepath to dump location.
+        :param data: data to be dumped
+        :return: None
+        """
+        with open(dump_fp, 'wb') as g:
+            pickle.dump(data, g)
+
+    def _generate_dump_filepath(self, dump_dir, file_count):
+        """
+        Helper function to create dump filepath
+
+        :param dump_dir: directory to dump file.
+        :param file_count: Number of files already dumped
+        :return: string of filepath.
+        """
+        return dump_dir + "data_" + str(file_count) + ".pkl"
 
     def _process_file(self, fp):
         """
         Processes a single h5 file into a dictionary object.
 
         :param fp: Filepath to h5 file to be processed.
-        :returns: Dictionary with keys to each variable extracted.
+        :return: Dictionary with keys to each variable extracted.
         """
 
         track_id = self._scrub_filepath_for_id(fp)
@@ -62,6 +82,7 @@ class Data:
 
         h5 = self._read_h5_file(fp)
         loudness = h5['analysis']['segments_loudness_max']
+        loudness = self._process_array(loudness, 2, 0)
         h5.close()
 
         out = {'artist': artist,
@@ -71,9 +92,22 @@ class Data:
 
         return out
 
+    def _process_array(self, array, k, rounding=1):
+        rounded = self._round_array(array, rounding)
+        k_grams = self._array_to_k_gram(rounded, k)
+        return k_grams
+
+    def _round_array(self, array, rounding):
+        return list(map(lambda x: round(x, rounding), array))
+
+    def _array_to_k_gram(self, array, k):
+        slices = [array[i:] for i in range(k)]
+        return list(set(zip(*slices)))
+
     def _scrub_filepath_for_id(self, fp):
         """
-        Extracts track id from filepath. (The MSD format has the track id in the filename)
+        Extracts track id from filepath. 
+        (The MSD format has the track id in the filename)
 
         :param fp: Filepath of the h5 file to be processed.
         :return: Track ID
@@ -119,7 +153,7 @@ class Data:
         Extracts id-artists mappings from unique_artists file
 
         :param fp: Filepath to unique artists file
-        :returns: Two dictionaries, one with id as key, and the
+        :return: Two dictionaries, one with id as key, and the
                 other with artist as key.
                 Note that an artist may have multiple ids
         """

@@ -1,8 +1,8 @@
-from Data import Data
+from src.Data import Data
 import os
 
 if __name__ == '__main__':
-    x = Data()
+    data = Data()
 
     unique_dir = "./MillionSongSubset/AdditionalFiles/"
     unique_artist_fp = unique_dir + "subset_unique_artists.txt"
@@ -13,4 +13,4 @@ if __name__ == '__main__':
     for i in range(len(all_files)):
         all_files[i] = data_dir + all_files[i]
 
-    data = x.create_data(all_files, unique_artist_fp, unique_tracks_fp)
+    out_data = data.create_data(all_files, unique_artist_fp, unique_tracks_fp)

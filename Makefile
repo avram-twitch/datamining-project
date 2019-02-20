@@ -1,6 +1,6 @@
 
 PIP = pip3
-PYTHON = $(PYTHON3)
+PYTHON = python3
 
 .PHONY: agg-data
 agg-data:
@@ -22,3 +22,7 @@ docs:
 .PHONY: setup
 setup:
 	$(PIP) install -r requirements.txt
+
+.PHONY: test
+test: lint
+	$(PYTHON) -m pytest ./tests/

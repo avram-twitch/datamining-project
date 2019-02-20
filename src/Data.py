@@ -13,7 +13,7 @@ class Data:
         pass
 
     def create_data(self, h5_files, artist_file, track_file,
-                    chunks=500, dump_dir="./data/"):
+                    chunks=250, dump_dir="./data/"):
         """
         Processes h5 files into pickled chunks.
 
@@ -37,6 +37,7 @@ class Data:
         file_count = 0
         for f in h5_files:
             counter += 1
+            print("Processing file %s" % str(counter))
             processed = self._process_file(f)
             data.append(processed)
             if counter % chunks == 0:
@@ -106,7 +107,7 @@ class Data:
 
     def _scrub_filepath_for_id(self, fp):
         """
-        Extracts track id from filepath. 
+        Extracts track id from filepath.
         (The MSD format has the track id in the filename)
 
         :param fp: Filepath of the h5 file to be processed.

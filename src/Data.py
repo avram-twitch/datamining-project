@@ -114,17 +114,17 @@ class Data:
         """
         Rounds values of an array to _rounding_ significant digits
 
-        :param array: np array to be rounded
+        :param array: list to be rounded
         :param rounding: significant digits to round to
         :return: list of rounded numbers
         """
-        return list(map(lambda x: round(x, rounding), array))
+        return [round(x, rounding) for x in array]
 
     def _array_to_k_gram(self, array, k):
         """
         Converts an array into a list of k-grams
 
-        :param array: Array to process
+        :param array: list to process
         :param k: subsequent values to combine (k-grams)
         :return: list of k-grams
         """

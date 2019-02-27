@@ -84,12 +84,15 @@ class Data:
         h5 = self._read_h5_file(fp)
         loudness = h5['analysis']['segments_loudness_max']
         loudness = self._process_array(loudness, 2, 0)
+        pitches = h5['analysis']['segments_pitches']
+        all_pitches = self._process_pitches(pitches, 2, 1)
         h5.close()
 
         out = {'artist': artist,
                'track': track,
                'id': track_id,
-               'loudness': loudness}
+               'loudness': loudness,
+               'pitches': all_pitches}
 
         return out
 
@@ -97,6 +100,15 @@ class Data:
         rounded = self._round_array(array, rounding)
         k_grams = self._array_to_k_gram(rounded, k)
         return k_grams
+
+    def _process_pitches(self, pitches, k, rounding=1):
+        instrument_pitches = list(zip(*pitches))
+        all_pitches = []
+        for instrument in instrument_pitches:
+            k_grams = self._process_array(instrument, k, rounding)
+            all_pitches.extend(k_grams)
+
+        return list(set(all_pitches))
 
     def _round_array(self, array, rounding):
         """

@@ -1,24 +1,27 @@
 '''
     @author - Angel Dhungana
     Implementation of Hierarchical Clustering
-    Linkage 
+    Linkage
         1 - Single-Link
         2 - Complete-Link
         3 - Mean-Link
-    
-    Also, has the functionality to plot the dendograms, but make sure n_clusters is 1
 
-    - Users need to make object providing max number of clusters to make and linkage method
+    Also, has the functionality to plot the dendograms,
+    but make sure n_clusters is 1
+
+    - Users need to make object providing max number of
+      clusters to make and linkage method
     - Users Method
         - fit(), makes cluster
         - label_(), returns clusters as an array
-        - plot_dendogram(), plots dendogram of the cluster, for this to work, nclusters should be 1
+        - plot_dendogram(), plots dendogram of the cluster,
+          for this to work, nclusters should be 1
 
     Example:
         hierarchichalCluster = HierarchicalClustering(1 , "single")
         hierarchichalCluster.fit(dataSet,len(dataSet))
         print(hierarchichalCluster.labels_())
-                    or 
+                    or
         hierarchichalCluster.plot_dendogram(dataSetLabels)
 
 '''
@@ -51,7 +54,8 @@ class HierarchicalClustering:
                 mean - 2
         '''
         linkage_num = {'single': 0, 'complete': 1, 'mean': 2}
-        if linkage_name in linkage_num: return linkage_num[linkage_name]
+        if linkage_name in linkage_num:
+            return linkage_num[linkage_name]
         else:
             print("Need a correct linkage method name")
             sys.exit(0)
@@ -60,8 +64,8 @@ class HierarchicalClustering:
         '''
             Set the datasets and its size and runs cluster
             You call this method to build the clusters
-             
-                data_set - Set of data to build cluster of 
+
+                data_set - Set of data to build cluster of
                 data_size - Size of Data
         '''
         self.dataset = data_set
@@ -77,7 +81,8 @@ class HierarchicalClustering:
 
     def cluster(self):
         '''
-            Calculates distance, and until n_clusters are made, we merge two closest data
+            Calculates distance,
+            and until n_clusters are made, we merge two closest data
         '''
         self.distance_matrix = self.find_distances()
         sets = set(tuple(row) for row in self.indexes)
@@ -128,7 +133,7 @@ class HierarchicalClustering:
     def single_linkage(self, first_ind, second_ind):
         '''
             Update cluster distance to the smallest distance
-                firstInd - row 
+                firstInd - row
         '''
         for i in range(0, self.N):
             index2 = str(second_ind) + "," + str(i)
@@ -241,13 +246,16 @@ class HierarchicalClustering:
         for row in range(0, self.N):
             for col in range(0, self.N):
                 indx = str(row) + "," + str(col)
-                if row == col: distance_matrix[indx] = float("inf")
-                else: distance_matrix[indx] = self.calculate_distance(row, col)
+                if row == col:
+                    distance_matrix[indx] = float("inf")
+                else:
+                    distance_matrix[indx] = self.calculate_distance(row, col)
         return distance_matrix
 
     def calculate_distance(self, row, col):
         '''
-            Calculate distance between two points. Not taking square root because it can be expensive
+            Calculate distance between two points.
+            Not taking square root because it can be expensive
         '''
         S1 = self.dataset[row]
         S2 = self.dataset[col]

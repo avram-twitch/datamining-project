@@ -1,5 +1,7 @@
 import h5py
 import pickle
+import multiprocessing as mp
+import os
 
 
 class Data:
@@ -9,11 +11,13 @@ class Data:
     Processes raw h5 data files from Million Song Dataset (herafter MSD)
     """
 
-    def __init__(self):
-        pass
+    def __init__(self, h5_files, artist_file, track_file):
+        self.h5_files = h5_files
+        (self.track_to_id,
+         self.artist_to_ids,
+         self.id_to_artist_track) = self._read_unique_tracks(track_file)
 
-    def create_data(self, h5_files, artist_file, track_file,
-                    chunks=250, dump_dir="./data/"):
+    def create_data(self, chunks=250, dump_dir="./data/"):
         """
         Processes h5 files into pickled chunks.
 
@@ -27,26 +31,47 @@ class Data:
         :return: None
         """
 
-        (self.track_to_id,
-         self.artist_to_ids,
-         self.id_to_artist_track) = self._read_unique_tracks(track_file)
+        if not self._check_dump_dir_exists(dump_dir):
+            print("%s does not exist" % dump_dir)
+            raise FileNotFoundError
+
+        p_args = self._create_parallel_args(chunks, dump_dir)
+
+        pool = mp.Pool(processes=mp.cpu_count())
+        pool.starmap(self._process_chunk, p_args)
+
+    def _check_dump_dir_exists(self, dump_dir):
+        return os.path.isdir(dump_dir)
+
+    def _process_chunk(self, files, chunk_start, dump_fp):
+        counter = 0
 
         data = []
-
-        counter = 0
-        file_count = 0
-        for f in h5_files:
+        for f in files:
             counter += 1
-            print("Processing file %s" % str(counter))
+            print("Processing file %s" % str(counter + chunk_start))
             processed = self._process_file(f)
             data.append(processed)
-            if counter % chunks == 0:
-                file_count += 1
-                dump_fp = self._generate_dump_filepath(dump_dir, file_count)
-                print("Saving %s songs to %s" % (str(chunks), dump_fp))
-                self._dump_data(dump_fp, data)
-                del data
-                data = []
+
+        self._dump_data(dump_fp, data)
+        del data
+
+    def _create_parallel_args(self, chunks, dump_dir):
+        # Creates a list of lists, each list being size chunks
+        chunked_files = [self.h5_files[x:x + chunks]
+                         for x in range(0, len(self.h5_files), chunks)]
+        out_args = []
+        chunk_start = 0
+        file_counter = 0
+        for files in chunked_files:
+            file_counter += 1
+            curr_dump_dir = self._generate_dump_filepath(dump_dir,
+                                                         file_counter)
+            args = (files, chunk_start, curr_dump_dir)
+            out_args.append(args)
+            chunk_start += chunks
+
+        return out_args
 
     def _dump_data(self, dump_fp, data):
         """
@@ -84,12 +109,15 @@ class Data:
         h5 = self._read_h5_file(fp)
         loudness = h5['analysis']['segments_loudness_max']
         loudness = self._process_array(loudness, 2, 0)
+        pitches = h5['analysis']['segments_pitches']
+        all_pitches = self._process_pitches(pitches, 2, 1)
         h5.close()
 
         out = {'artist': artist,
                'track': track,
                'id': track_id,
-               'loudness': loudness}
+               'loudness': loudness,
+               'pitches': all_pitches}
 
         return out
 
@@ -98,21 +126,30 @@ class Data:
         k_grams = self._array_to_k_gram(rounded, k)
         return k_grams
 
+    def _process_pitches(self, pitches, k, rounding=1):
+        instrument_pitches = list(zip(*pitches))
+        all_pitches = []
+        for instrument in instrument_pitches:
+            k_grams = self._process_array(instrument, k, rounding)
+            all_pitches.extend(k_grams)
+
+        return list(set(all_pitches))
+
     def _round_array(self, array, rounding):
         """
         Rounds values of an array to _rounding_ significant digits
 
-        :param array: np array to be rounded
+        :param array: list to be rounded
         :param rounding: significant digits to round to
         :return: list of rounded numbers
         """
-        return list(map(lambda x: round(x, rounding), array))
+        return [round(x, rounding) for x in array]
 
     def _array_to_k_gram(self, array, k):
         """
         Converts an array into a list of k-grams
 
-        :param array: Array to process
+        :param array: list to process
         :param k: subsequent values to combine (k-grams)
         :return: list of k-grams
         """

@@ -21,6 +21,26 @@ class Minhash:
         self.salts = []
         self._initialize_salts()
 
+    def get_arb_similarity(self, first_data, second_data):
+        """
+        Calculates an estimate for Jaccard similarity beteeen two observations
+        Different from get_similarity. This calculates min has of provided
+        sets, rather than using indices to get stored similarity.
+
+        :param first_data: Data of first observation to compare
+        :param second_data: Data of second observation to compare
+        :return: Float value of the estimated Jaccard similarity.
+        """
+        first_min = self._hash_row(first_data)
+        second_min = self._hash_row(second_data)
+
+        count = 0
+        for (a, b) in zip(first_min, second_min):
+            if a == b:
+                count += 1
+
+        return count / float(self.k)
+
     def run(self, data):
         """
         Calculates k minhashes for each observation in provided data.

@@ -126,6 +126,13 @@ class Data:
         k_grams = self._array_to_k_gram(rounded, k)
         return k_grams
 
+    def _array_to_counts(self, array):
+
+        out = {}
+        for item in array:
+            out[item] = out.get(item, 0) + 1
+        return out
+
     def _process_pitches(self, pitches, k, rounding=1):
         instrument_pitches = list(zip(*pitches))
         all_pitches = []
@@ -154,7 +161,7 @@ class Data:
         :return: list of k-grams
         """
         slices = [array[i:] for i in range(k)]
-        return list(set(zip(*slices)))
+        return list(zip(*slices))
 
     def _scrub_filepath_for_id(self, fp):
         """

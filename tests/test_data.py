@@ -111,3 +111,18 @@ def test_bad_directory_path_raises_error(setup_data):
     data = setup_data
     with pytest.raises(FileNotFoundError):
         data.create_data(dump_dir="./does/not/exist/")
+
+
+def test_array_to_counts_counts_correctly(setup_data):
+
+    data = setup_data
+
+    in_array = [0.1, 0.2, 0.1, 0.2, 0.0, 0.1, 0.2, 0.0, 0.1, 0.0]
+    tmp_array = data._array_to_k_gram(in_array, 2)
+    actual_out = {(0.1, 0.2): 3,
+                  (0.2, 0.1): 1,
+                  (0.2, 0.0): 2,
+                  (0.0, 0.1): 2,
+                  (0.1, 0.0): 1}
+    out_array = data._array_to_counts(tmp_array)
+    assert out_array == actual_out

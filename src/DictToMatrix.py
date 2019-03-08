@@ -31,9 +31,9 @@ class DictToMatrix:
         out_meta = np.array(all_meta)
 
         np.savetxt(out_data_dir + "loudness_matrix.csv",
-                   out_loudness, delimiter=',')
+                   out_loudness, delimiter=',', fmt="%d")
         np.savetxt(out_data_dir + "pitches_matrix.csv",
-                   out_pitches, delimiter=',')
+                   out_pitches, delimiter=',', fmt="%d")
         np.savetxt(out_data_dir + "metadata.tsv",
                    out_meta, delimiter='\t', fmt="%s")
 
@@ -50,7 +50,7 @@ class DictToMatrix:
         id_ = data['id']
         meta_data = [artist, track, id_]
         loudness_data = self.expand_libsvm_to_list(data['loudness'])
-        pitches_data = self.expand_libsvm_to_list(data['loudness'])
+        pitches_data = self.expand_libsvm_to_list(data['pitches'])
         return meta_data, loudness_data, pitches_data
 
     def expand_libsvm_to_list(self, array):
@@ -69,7 +69,7 @@ class DictToMatrix:
 
     def unequal_lists_to_np_array(self, lists):
         self.max_feature
-        out_array = np.zeros([len(lists), self.max_feature])
+        out_array = np.zeros([len(lists), self.max_feature], dtype=int)
         for n, data in enumerate(lists):
             out_array[n][0:len(data)] = data
 

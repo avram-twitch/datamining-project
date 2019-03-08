@@ -4,7 +4,7 @@ import pickle
 import os
 
 
-class Data:
+class RawDataProcessor:
     """
     Data processing object.
 

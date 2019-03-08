@@ -1,4 +1,4 @@
-import src.Data as Data
+import src.RawDataProcessor as Data
 import pytest
 import os
 
@@ -13,7 +13,7 @@ def setup_data():
     all_files = os.listdir(data_dir)
     for i in range(len(all_files)):
         all_files[i] = data_dir + all_files[i]
-    data = Data.Data(all_files, unique_artist_fp, unique_tracks_fp)
+    data = Data.RawDataProcessor(all_files, unique_artist_fp, unique_tracks_fp)
     return data
 
 

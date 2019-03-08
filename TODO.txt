@@ -1,9 +1,4 @@
-Have Data determine unique items/variables, convert variables to integer values (Avram)
-    (I think this may be necessary, since there may be overlap values between different variable.
-     We want to make sure that those are not counted as the same)
-     (Maybe a named tuple as a key for a dict?)
-Have data keep counts of each k-gram (Avram)
-Have data generate numpy arrays for clustering (Avram)
+Have feature counts reflect the type of data.
 Implement LSH (Avram)
 Create charts, tables, visualizations of LSH (Avram)
 

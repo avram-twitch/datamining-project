@@ -13,4 +13,4 @@ if __name__ == '__main__':
         all_files[i] = data_dir + all_files[i]
 
     data = Data(all_files, unique_artist_fp, unique_tracks_fp)
-    out_data = data.create_data(chunks=250, dump_dir="./data/")
+    out_data = data.create_data(chunks=250, dump_dir="./data/pickled_files/")

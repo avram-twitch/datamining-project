@@ -1,6 +1,6 @@
 import h5py
 import pickle
-import multiprocessing as mp
+# import multiprocessing as mp
 import os
 
 
@@ -16,6 +16,13 @@ class Data:
         (self.track_to_id,
          self.artist_to_ids,
          self.id_to_artist_track) = self._read_unique_tracks(track_file)
+
+        self.features_map = {'pitches':  {'gram_to_feature': {},
+                                          'feature_to_gram': {},
+                                          'count': 0},
+                             'loudness': {'gram_to_feature': {},
+                                          'feature_to_gram': {},
+                                          'count': 0}}
 
     def create_data(self, chunks=250, dump_dir="./data/"):
         """
@@ -37,8 +44,11 @@ class Data:
 
         p_args = self._create_parallel_args(chunks, dump_dir)
 
-        pool = mp.Pool(processes=mp.cpu_count())
-        pool.starmap(self._process_chunk, p_args)
+        # pool = mp.Pool(processes=mp.cpu_count())
+        # pool.starmap(self._process_chunk, p_args)
+
+        for args in p_args:
+            self._process_chunk(*args)
 
     def _check_dump_dir_exists(self, dump_dir):
         return os.path.isdir(dump_dir)
@@ -108,7 +118,7 @@ class Data:
 
         h5 = self._read_h5_file(fp)
         loudness = h5['analysis']['segments_loudness_max']
-        loudness = self._process_array(loudness, 2, 0)
+        loudness = self._process_array(loudness, 2, 'loudness', 0)
         pitches = h5['analysis']['segments_pitches']
         all_pitches = self._process_pitches(pitches, 2, 1)
         h5.close()
@@ -121,26 +131,55 @@ class Data:
 
         return out
 
-    def _process_array(self, array, k, rounding=1):
+    def _process_array(self, array, k, feature, rounding=1):
+        """
+        Processes an array by rounding it, turning to k-grams,
+        getting the feature name for a k-gram, and counting up
+        feature occurrences
+        """
         rounded = self._round_array(array, rounding)
         k_grams = self._array_to_k_gram(rounded, k)
-        return k_grams
+        featurized_k_grams = self._featurize_k_grams(k_grams, feature)
+        counts = self._array_to_counts(featurized_k_grams)
+        return counts
+
+    def _process_pitches(self, pitches, k, rounding=1):
+        instrument_pitches = list(zip(*pitches))
+        all_pitches = {}
+        for instrument in instrument_pitches:
+            k_grams = self._process_array(instrument, k, 'pitches', rounding)
+            for gram, count in k_grams.items():
+                all_pitches[gram] = all_pitches.get(gram, 0) + count
+
+        return all_pitches
+
+    def _featurize_k_grams(self, k_grams, feature):
+
+        out = []
+        for gram in k_grams:
+            curr = self._get_feature_name(feature, gram)
+            out.append(curr)
+
+        return out
+
+    def _get_feature_name(self, feature, gram):
+        gram_to_feature = self.features_map[feature]['gram_to_feature']
+        feature_to_gram = self.features_map[feature]['feature_to_gram']
+        if gram not in gram_to_feature.keys():
+            feature_count = self.features_map[feature]['count']
+            feature_name = str(feature_count)
+            gram_to_feature[gram] = feature_name
+            feature_to_gram[feature_name] = gram
+            self.features_map[feature]['count'] += 1
+
+        feature_name = gram_to_feature[gram]
+        return feature_name
 
     def _array_to_counts(self, array):
-
         out = {}
         for item in array:
             out[item] = out.get(item, 0) + 1
         return out
-
-    def _process_pitches(self, pitches, k, rounding=1):
-        instrument_pitches = list(zip(*pitches))
-        all_pitches = []
-        for instrument in instrument_pitches:
-            k_grams = self._process_array(instrument, k, rounding)
-            all_pitches.extend(k_grams)
-
-        return list(set(all_pitches))
 
     def _round_array(self, array, rounding):
         """

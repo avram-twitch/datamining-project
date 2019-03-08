@@ -76,8 +76,10 @@ def test_process_array(setup_data):
                         (3, 4, 4),
                         (4, 4, 5)])
 
-    out_2_set = data._process_array(in_array, 2, 0)
-    out_3_set = data._process_array(in_array, 3, 0)
+    rounded = data._round_array(in_array, 0)
+
+    out_2_set = data._array_to_k_gram(rounded, 2)
+    out_3_set = data._array_to_k_gram(rounded, 3)
     assert set(out_2_set) == actual_2_set
     assert set(out_3_set) == actual_3_set
 
@@ -88,23 +90,29 @@ def test_process_pitches(setup_data):
                 [0.16, 0.11, 0.49],
                 [0.1, 0.1, 0.4],
                 [0.21, 0.36, 0.1]]
-    actual_2_set = set([(0.1, 0.2),
-                        (0.2, 0.1),
-                        (0.1, 0.1),
-                        (0.1, 0.4),
-                        (0.1, 0.5),
-                        (0.5, 0.4),
-                        (0.4, 0.1)])
-    actual_3_set = set([(0.1, 0.2, 0.1),
-                        (0.2, 0.1, 0.2),
-                        (0.2, 0.1, 0.1),
-                        (0.1, 0.1, 0.4),
-                        (0.1, 0.5, 0.4),
-                        (0.5, 0.4, 0.1)])
+    actual_2_count = {(0.1, 0.2): 2,
+                      (0.2, 0.1): 2,
+                      (0.1, 0.1): 1,
+                      (0.1, 0.4): 1,
+                      (0.1, 0.5): 1,
+                      (0.5, 0.4): 1,
+                      (0.4, 0.1): 1}
+    actual_3_count = {(0.1, 0.2, 0.1): 1,
+                      (0.2, 0.1, 0.2): 1,
+                      (0.2, 0.1, 0.1): 1,
+                      (0.1, 0.1, 0.4): 1,
+                      (0.1, 0.5, 0.4): 1,
+                      (0.5, 0.4, 0.1): 1}
     out_2_set = data._process_pitches(in_array, 2, 1)
     out_3_set = data._process_pitches(in_array, 3, 1)
-    assert set(out_2_set) == actual_2_set
-    assert set(out_3_set) == actual_3_set
+
+    for feature, count in out_2_set.items():
+        key = data.features_map['pitches']['feature_to_gram'][feature]
+        assert actual_2_count[key] == count
+
+    for feature, count in out_3_set.items():
+        key = data.features_map['pitches']['feature_to_gram'][feature]
+        assert actual_3_count[key] == count
 
 
 def test_bad_directory_path_raises_error(setup_data):

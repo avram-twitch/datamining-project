@@ -2,6 +2,7 @@ import pickle as pkl
 import numpy as np
 import os
 
+
 class DictToMatrix:
     """
     Converts the pickled files that RawDataProcessor produces
@@ -29,9 +30,12 @@ class DictToMatrix:
         out_pitches = self.unequal_lists_to_np_array(all_pitches)
         out_meta = np.array(all_meta)
 
-        np.savetxt(out_data_dir + "loudness_matrix.csv", out_loudness, delimiter=',')
-        np.savetxt(out_data_dir + "pitches_matrix.csv", out_pitches, delimiter=',')
-        np.savetxt(out_data_dir + "metadata.tsv", out_meta, delimiter='\t', fmt="%s")
+        np.savetxt(out_data_dir + "loudness_matrix.csv",
+                   out_loudness, delimiter=',')
+        np.savetxt(out_data_dir + "pitches_matrix.csv",
+                   out_pitches, delimiter=',')
+        np.savetxt(out_data_dir + "metadata.tsv",
+                   out_meta, delimiter='\t', fmt="%s")
 
     def open_pickle_file(self, fp):
         with open(fp, 'rb') as f:

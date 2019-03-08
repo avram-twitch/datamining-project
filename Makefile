@@ -1,14 +1,21 @@
-
 PIP = pip3
 PYTHON = python3
 
-.PHONY: agg-data
+.PHONY: agg_data
 agg-data:
 	find ./MillionSongSubset/data/ -name "*.h5" -type f -exec mv {} ./raw_data/ \;
 
-.PHONY: process-raw
-process-raw:
-	$(PYTHON) ./process_raw_data.py
+.PHONY: process_raw
+process_raw:
+	$(PYTHON) ./run.py process_raw
+
+.PHONY: to_matrix
+to_matrix:
+	$(PYTHON) ./run.py to_matrix
+
+.PHONY: run_minhash
+run_minhash:
+	$(PYTHON) ./run.py run_minhash
 
 .PHONY: lint 
 lint:

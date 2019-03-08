@@ -1,4 +1,4 @@
-Have feature counts reflect the type of data.
+Have feature names reflect the type of data (pitches vs loudness)
 Implement LSH (Avram)
 Create charts, tables, visualizations of LSH (Avram)
 

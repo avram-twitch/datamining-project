@@ -39,7 +39,7 @@ Using the time data, we could potentially see how these things shift.
 ## Running on the subset (so far)
 
 * Install requirements by running `make setup`
-* run `mkdir -p data/pickled_files/` and `mkdir -p data/matrix_files/
+* run `mkdir -p data/pickled_files/` and `mkdir -p data/matrix_files/`
 * Download the subset into the source directory
 * run `make agg-data`
 * run `make process_raw` (will take ~20+ minutes)

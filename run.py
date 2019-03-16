@@ -2,6 +2,7 @@ import os
 import sys
 from src.RawDataProcessor import RawDataProcessor
 from src.DictToMatrix import DictToMatrix
+from src.LocalitySensitiveHash import LSH
 # from src.Minhash import Minhash
 
 
@@ -64,10 +65,31 @@ def run_minhash():
     print("Not yet defined")
 
 
+def run_lsh():
+    """
+    Runs Locality Sensitive Hash Analysis
+    """
+    tau = 0.85
+    lsh = LSH(tau=tau, t=160, r=5, b=32, euclidean=False)
+    fp = "./data/matrix_files/pitches_matrix.csv"
+    size = 10000
+    out = lsh.run_on_data(fp)
+    count = 0
+
+    for i in range(size):
+        for j in range(size - i - 1):
+            est = lsh.query_similarity(i, i + j + 1)
+            if est > tau:
+                count += 1
+                print("%s and %s are similar" % (i, j))
+    print("Total: %s" % count)
+
+
 if __name__ == '__main__':
     options = {'to_matrix': to_matrix,
                'process_raw': process_raw_data,
-               'run_minhash': run_minhash}
+               'run_minhash': run_minhash,
+               'run_lsh': run_lsh}
 
     if len(sys.argv) == 1:
         print("Usage: Supply command arg to run a task")

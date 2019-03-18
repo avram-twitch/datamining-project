@@ -59,16 +59,10 @@ def to_matrix():
     data.run(data_dir, out_data_dir)
 
 
-def run_minhash():
-    """
-    Runs a minhash analysis (TODO)
-    """
-    print("Not yet defined")
-
-
 def run_lsh():
     """
     Runs Locality Sensitive Hash Analysis
+    (For now just looking at a single Kings of leon song)
     """
     tau = 0.85
     lsh = LSH(tau=tau, t=160, r=5, b=32, euclidean=False)
@@ -82,13 +76,12 @@ def run_lsh():
     with open("./data/matrix_files/metadata.tsv") as f:
         metadata = list(f)
         for item in out:
-            print(metadata[item])
+            print(metadata[item].replace("\n", ""))
 
 
 if __name__ == '__main__':
     options = {'to_matrix': to_matrix,
                'process_raw': process_raw_data,
-               'run_minhash': run_minhash,
                'run_lsh': run_lsh}
 
     if len(sys.argv) == 1:

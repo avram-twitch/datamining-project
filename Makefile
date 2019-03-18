@@ -17,10 +17,6 @@ to_matrix:
 lsh:
 	$(PYTHON) ./run.py run_lsh
 
-.PHONY: minhash
-run_minhash:
-	$(PYTHON) ./run.py run_minhash
-
 .PHONY: lint 
 lint:
 	flake8

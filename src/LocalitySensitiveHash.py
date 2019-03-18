@@ -54,7 +54,6 @@ class LSH:
         for hash_ in self._all_hashes:
             curr_sim = self._query(query_hash, hash_)
             if curr_sim > self.tau:
-                print(counter)
                 out.append(counter)
             counter += 1
 

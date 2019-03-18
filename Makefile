@@ -13,7 +13,11 @@ process_raw:
 to_matrix:
 	$(PYTHON) ./run.py to_matrix
 
-.PHONY: run_minhash
+.PHONY: lsh
+lsh:
+	$(PYTHON) ./run.py run_lsh
+
+.PHONY: minhash
 run_minhash:
 	$(PYTHON) ./run.py run_minhash
 

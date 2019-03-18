@@ -19,24 +19,19 @@ class LSH:
         :param data: a numpy array with 2 dimensions
         :return: The hashed representation of the data
         """
+        if self.t != self.b * self.r:
+            print("""Number of hash functions does not
+                  match r and b (%s != %s * %s)""" %
+                  (self.t, self.b, self.r))
+            raise ValueError
+
         all_hashes = []
         d = data.shape[1]
         self._generate_jaccard_hashes(self.t, d)
 
         for obs in data:
-            hashes = [0 for i in range(self.t)]
-            for i in range(self.t):
-                dot = np.dot(obs, self.vectors[i])
-                if self.euclidean:
-                    curr = math.ceil(dot + self.offsets[i])
-                else:
-                    if dot > 0:
-                        curr = 1
-                    else:
-                        curr = -1
 
-                hashes[i] = curr
-
+            hashes = self._hash_obs(obs)
             all_hashes.append(copy.deepcopy(hashes))
 
         self._all_hashes = all_hashes
@@ -54,18 +49,7 @@ class LSH:
 
         counter = 0
         out = []
-        query_hash = [0 for i in range(self.t)]
-        for i in range(self.t):
-            dot = np.dot(query, self.vectors[i])
-            if self.euclidean:
-                curr = math.ceil(dot + self.offsets[i])
-            else:
-                if dot > 0:
-                    curr = 1
-                else:
-                    curr = -1
-
-            query_hash[i] = curr
+        query_hash = self._hash_obs(query)
 
         for hash_ in self._all_hashes:
             curr_sim = self._query(query_hash, hash_)
@@ -88,6 +72,29 @@ class LSH:
         h1 = self._all_hashes[q1]
         h2 = self._all_hashes[q2]
         return self._query(h1, h2)
+
+    def _hash_obs(self, obs):
+        """
+        Hashes a single observation
+
+        :param obs: numpy vector to be hashed
+        :return: list of t hashes generated from obs
+        """
+
+        hashes = [0 for i in range(self.t)]
+        for i in range(self.t):
+            dot = np.dot(obs, self.vectors[i])
+            if self.euclidean:
+                curr = math.ceil(dot + self.offsets[i])
+            else:
+                if dot > 0:
+                    curr = 1
+                else:
+                    curr = -1
+
+            hashes[i] = curr
+
+        return hashes
 
     def _query(self, h1, h2):
         """

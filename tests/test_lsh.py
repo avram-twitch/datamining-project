@@ -15,6 +15,16 @@ def setup_data():
     return lsh
 
 
+def test_r_and_b_match_t(setup_data):
+    lsh = setup_data
+    dummy_data = np.array([[]])
+    lsh.hash_data(dummy_data)
+    lsh.r = 100
+    lsh.b = 9
+    with pytest.raises(ValueError):
+        lsh.hash_data(dummy_data)
+
+
 def test_convert_to_unit(setup_data):
 
     lsh = setup_data

@@ -67,8 +67,8 @@ def run_lsh():
     tau = 0.85
     lsh = LSH(tau=tau, t=160, r=5, b=32, euclidean=False)
     fp = "./data/matrix_files/pitches_matrix.csv"
+    # fp = "./data/matrix_files/loudness_matrix.csv"
     data = np.loadtxt(fp, delimiter=",")
-    # size = 10000
     lsh.hash_data(data)
     kings = data[1]
     out = lsh.query_all_similar(kings)

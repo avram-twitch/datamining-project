@@ -36,10 +36,36 @@ class LSH:
 
         return all_hashes
 
+    def query_all_similar(self, query):
+
+        counter = 0
+        out = []
+        query_hash = [0 for i in range(self.t)]
+        for i in range(self.t):
+            dot = np.dot(query, self.vectors[i])
+            if self.euclidean:
+                curr = math.ceil(dot + self.offsets[i])
+            else:
+                curr = 1 if dot > 0 else -1
+
+            query_hash[i] = curr
+
+        for hash_ in self._all_hashes:
+            curr_sim = self._query(query_hash, hash_)
+            if curr_sim > self.tau:
+                print(counter)
+                out.append(counter)
+            counter += 1
+
+        return out
+
     def query_similarity(self, q1, q2):
 
         h1 = self._all_hashes[q1]
         h2 = self._all_hashes[q2]
+        return self._query(h1, h2)
+
+    def _query(self, h1, h2):
 
         curr_r = 0
         curr_b = 0
@@ -86,7 +112,6 @@ class LSH:
 
         d = a.shape[0]
         u = self._generate_unit_vector(d)
-
         return np.dot(a, u)
 
     def _generate_t_unit_vectors(self, t, d):

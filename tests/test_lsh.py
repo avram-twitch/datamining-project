@@ -20,7 +20,7 @@ def test_convert_to_unit(setup_data):
     lsh = setup_data
     random_vectors = [np.random.rand(100) for x in range(10)]
     for v in random_vectors:
-        unit_vector = lsh.convert_to_unit(v)
+        unit_vector = lsh._convert_to_unit(v)
         norm = np.linalg.norm(unit_vector)
         assert pytest.approx(norm) == 1.0
 

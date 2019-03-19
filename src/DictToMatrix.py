@@ -30,12 +30,18 @@ class DictToMatrix:
         out_pitches = self.unequal_lists_to_np_array(all_pitches)
         out_meta = np.array(all_meta)
 
-        np.savetxt(out_data_dir + "loudness_matrix.csv",
-                   out_loudness, delimiter=',', fmt="%d")
-        np.savetxt(out_data_dir + "pitches_matrix.csv",
-                   out_pitches, delimiter=',', fmt="%d")
-        np.savetxt(out_data_dir + "metadata.tsv",
-                   out_meta, delimiter='\t', fmt="%s")
+        np.savetxt(
+            out_data_dir + "loudness_matrix.csv",
+            out_loudness,
+            delimiter=',',
+            fmt="%d")
+        np.savetxt(
+            out_data_dir + "pitches_matrix.csv",
+            out_pitches,
+            delimiter=',',
+            fmt="%d")
+        np.savetxt(
+            out_data_dir + "metadata.tsv", out_meta, delimiter='\t', fmt="%s")
 
     def open_pickle_file(self, fp):
         with open(fp, 'rb') as f:
@@ -48,7 +54,8 @@ class DictToMatrix:
         artist = data['artist']
         track = data['track'].split("\n")[0]
         id_ = data['id']
-        meta_data = [artist, track, id_]
+        year = data['year']
+        meta_data = [artist, track, id_, year]
         loudness_data = self.expand_libsvm_to_list(data['loudness'])
         pitches_data = self.expand_libsvm_to_list(data['pitches'])
         return meta_data, loudness_data, pitches_data

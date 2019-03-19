@@ -13,16 +13,21 @@ class RawDataProcessor:
 
     def __init__(self, h5_files, artist_file, track_file, **kwargs):
         self.h5_files = h5_files
-        (self.track_to_id,
-         self.artist_to_ids,
+        (self.track_to_id, self.artist_to_ids,
          self.id_to_artist_track) = self._read_unique_tracks(track_file)
 
-        self.features_map = {'pitches':  {'gram_to_feature': {},
-                                          'feature_to_gram': {},
-                                          'count': 0},
-                             'loudness': {'gram_to_feature': {},
-                                          'feature_to_gram': {},
-                                          'count': 0}}
+        self.features_map = {
+            'pitches': {
+                'gram_to_feature': {},
+                'feature_to_gram': {},
+                'count': 0
+            },
+            'loudness': {
+                'gram_to_feature': {},
+                'feature_to_gram': {},
+                'count': 0
+            }
+        }
 
         self.pitches_round = kwargs.get('pitches_round', 1)
         self.pitches_k = kwargs.get('pitches_k', 5)
@@ -73,15 +78,17 @@ class RawDataProcessor:
 
     def _create_parallel_args(self, chunks, dump_dir):
         # Creates a list of lists, each list being size chunks
-        chunked_files = [self.h5_files[x:x + chunks]
-                         for x in range(0, len(self.h5_files), chunks)]
+        chunked_files = [
+            self.h5_files[x:x + chunks]
+            for x in range(0, len(self.h5_files), chunks)
+        ]
         out_args = []
         chunk_start = 0
         file_counter = 0
         for files in chunked_files:
             file_counter += 1
-            curr_dump_dir = self._generate_dump_filepath(dump_dir,
-                                                         file_counter)
+            curr_dump_dir = self._generate_dump_filepath(
+                dump_dir, file_counter)
             args = (files, chunk_start, curr_dump_dir)
             out_args.append(args)
             chunk_start += chunks
@@ -120,7 +127,6 @@ class RawDataProcessor:
         track_id = self._scrub_filepath_for_id(fp)
         artist = self._get_artist(track_id)
         track = self._get_track(track_id)
-
         h5 = self._read_h5_file(fp)
         loudness = h5['analysis']['segments_loudness_max']
         loudness = self._process_array(loudness, self.loudness_k,
@@ -128,13 +134,18 @@ class RawDataProcessor:
         pitches = h5['analysis']['segments_pitches']
         all_pitches = self._process_pitches(pitches, self.pitches_k,
                                             self.pitches_round)
+        year = h5['musicbrainz']['songs']
+        year = self._process_year(year)
         h5.close()
 
-        out = {'artist': artist,
-               'track': track,
-               'id': track_id,
-               'loudness': loudness,
-               'pitches': all_pitches}
+        out = {
+            'artist': artist,
+            'track': track,
+            'id': track_id,
+            'year': year,
+            'loudness': loudness,
+            'pitches': all_pitches
+        }
 
         return out
 
@@ -159,6 +170,14 @@ class RawDataProcessor:
                 all_pitches[gram] = all_pitches.get(gram, 0) + count
 
         return all_pitches
+
+    def _process_year(self, years):
+        years_ = list(zip(*years))
+        years_ = [i[0] for i in years_]
+        for yrs in years_:
+            if yrs != 0:
+                return yrs
+        return 0
 
     def _featurize_k_grams(self, k_grams, feature):
 

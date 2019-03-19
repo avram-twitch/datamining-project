@@ -5,9 +5,9 @@
 import numpy as np
 from matplotlib import pyplot as plt
 import csv
-import src.GonzalezClustering
-import src.KPlusPlus
-import src.LlyodsClustering
+import src.GonzalezClustering as GonzalezClustering
+import src.KPlusPlus as KPlusPlus
+import src.LloydsClustering as LloydsClustering  # Mispelled
 import matplotlib.patches as mpatches
 
 
@@ -54,23 +54,23 @@ def main():
     pitches = np.genfromtxt(pitches_file_path, delimiter=',')
     pca_loud = PCA_(loudness, n_components=2)
     pca_pitch = PCA_(pitches, n_components=2)
-    #sum_squared_error(loudness)
-    #sum_squared_error(pitches)
+    # sum_squared_error(loudness)
+    # sum_squared_error(pitches)
 
-    llyods_with_kpp(loudness, "Llyods with K++ - Loudness - ", 4,
+    lloyds_with_kpp(loudness, "Lloyds with K++ - Loudness - ", 4,
                     metadata_file_path, pca_loud)
 
-    llyods_with_kpp(pitches, "Llyods with K++ - Pitches - ", 3,
+    lloyds_with_kpp(pitches, "Lloyds with K++ - Pitches - ", 3,
                     metadata_file_path, pca_pitch)
 
-    llyods_with_gonzalez(loudness, "Llyods with Gonzalez - Loudness - ", 4,
+    lloyds_with_gonzalez(loudness, "Lloyds with Gonzalez - Loudness - ", 4,
                          metadata_file_path, pca_loud)
 
-    llyods_with_gonzalez(pitches, "Llyods with Gonzalez - Pitches - ", 3,
+    lloyds_with_gonzalez(pitches, "Lloyds with Gonzalez - Pitches - ", 3,
                          metadata_file_path, pca_pitch)
 
 
-def llyods_with_kpp(dataset, type_text, k, metadata_file_path, pca_d):
+def lloyds_with_kpp(dataset, type_text, k, metadata_file_path, pca_d):
     '''
         Runs LLyods Algorithm with initial centroids computed with K++
         Plots Graphs based on Artist and Dates Slices
@@ -81,9 +81,9 @@ def llyods_with_kpp(dataset, type_text, k, metadata_file_path, pca_d):
     '''
     gc = KPlusPlus.KPlusPlus(k)
     gc.fit(dataset)
-    ll = LlyodsClustering.LlyodsClustering(len(gc._centers()), gc._centers())
+    ll = LloydsClustering.LloydsClustering(len(gc._centers()), gc._centers())
     ll.fit(dataset)
-    print("Llyod's Finished")
+    print("Lloyd's Finished")
     centroids = ll._centroids()
     closest_centers = ll.assign_centers_to_data(dataset, centroids)
     artists, years = get_years_artist_for_each_cluster(closest_centers,
@@ -97,9 +97,10 @@ def llyods_with_kpp(dataset, type_text, k, metadata_file_path, pca_d):
                 type_text + "Years", type_text + "Years" + ".pdf")
 
 
-def llyods_with_gonzalez(dataset, type_text, k, metadata_file_path, pca_d):
+def lloyds_with_gonzalez(dataset, type_text, k, metadata_file_path, pca_d):
     '''
-        Runs LLyods Algorithm with initial centroids computed with Gongalez Algorithm
+        Runs LLyods Algorithm with initial centroids computed
+        with Gongalez Algorithm
         Plots Graphs based on Artist and Dates Slices
             dataset - dataset to cluster on
             type_text - string, which dataset is this, loudness or pitches
@@ -108,9 +109,9 @@ def llyods_with_gonzalez(dataset, type_text, k, metadata_file_path, pca_d):
     '''
     gc = GonzalezClustering.GonzalezClustering(k)
     gc.fit(dataset)
-    ll = LlyodsClustering.LlyodsClustering(len(gc._centers()), gc._centers())
+    ll = LloydsClustering.LloydsClustering(len(gc._centers()), gc._centers())
     ll.fit(dataset)
-    print("Llyod's Finished")
+    print("Lloyd's Finished")
     centroids = ll._centroids()
     closest_centers = ll.assign_centers_to_data(dataset, centroids)
     artists, years = get_years_artist_for_each_cluster(closest_centers,
@@ -127,7 +128,8 @@ def llyods_with_gonzalez(dataset, type_text, k, metadata_file_path, pca_d):
 def get_years_artist_for_each_cluster(closest_centers, centers_size, max_num,
                                       metadata_file_path):
     '''
-        Read Metadata and get the artist name and year the song was released, add it to dictionary
+        Read Metadata and get the artist name and year the song was released,
+        add it to dictionary
         Returns the most common years or artist names for each cluster
             closest_centers - list containing closest centers for each songs
             centers_size - how many centers are there
@@ -153,7 +155,8 @@ def get_years_artist_for_each_cluster(closest_centers, centers_size, max_num,
 def find_max_years_artist_in_clusters(centers_dict, max_num):
     '''
         Find the most common years and artist names in each cluster
-            centers_dict - Dictionary containing centers with artist name and year
+            centers_dict - Dictionary containing centers with
+                           artist name and year
             max_num - Maximum number of most common to generate
     '''
     artists_max = []
@@ -176,8 +179,10 @@ def helper_dict_adder(temp_dict, value):
             temp_dict - dictionary to look for value and put counter
             value - value to look for in dictionary
     '''
-    if value in temp_dict: temp_dict[value] += 1
-    else: temp_dict[value] = 1
+    if value in temp_dict:
+        temp_dict[value] += 1
+    else:
+        temp_dict[value] = 1
 
 
 def PCA_(X, n_components):
@@ -191,7 +196,8 @@ def PCA_(X, n_components):
             1st Principal component (PC1)
                 – Direction along which there is greatest variation
             2nd Principal component (PC2)
-                - Direction with maximum variation left in data, orthogonal to PC1 
+                - Direction with maximum variation left in data,
+                  orthogonal to PC1
     '''
     # Empirical Mean
     mu = X.mean(axis=0)
@@ -213,8 +219,8 @@ def PCA_(X, n_components):
 def sum_squared_error(B):
     '''
         Getting the inertia, sum of squared errors for each k
-        Plotting a line chart of the SSE for each value of k. 
-        If the line chart looks like an arm, 
+        Plotting a line chart of the SSE for each value of k.
+        If the line chart looks like an arm,
             then the "elbow" on the arm is the value of k that is the best.
     '''
     max_k = 10

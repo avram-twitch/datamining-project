@@ -1,14 +1,14 @@
 '''
     @author - Angel Dhungana
-    LLyods Class
+    LLoyds Class
 '''
-import random
+# import random
 import numpy as np
 
 
-class LlyodsClustering:
+class LloydsClustering:
     '''
-            Set up Llyods Clustering
+            Set up Lloyds Clustering
                 n_centers - Number of Centers
                 indexes - Indexing each x E X
                 N - Size of dataset
@@ -43,14 +43,17 @@ class LlyodsClustering:
         return self.centroids
 
     def _converged(self, centroids, iterations):
-        if iterations > self.MAX_ITERATIONS: return True
+        if iterations > self.MAX_ITERATIONS:
+            return True
         return centroids == self.centroids
 
     def calculate_dist(self, data, clusters):
         for dat in data:
             mu_index = self.norm_min(dat)
-            if mu_index in clusters: clusters[mu_index].append(dat)
-            else: clusters[mu_index] = [dat]
+            if mu_index in clusters:
+                clusters[mu_index].append(dat)
+            else:
+                clusters[mu_index] = [dat]
         for cluster in clusters:
             if not cluster:
                 cluster.append(data[np.random.randint(
@@ -59,8 +62,20 @@ class LlyodsClustering:
         return clusters
 
     def norm_min(self, dat):
-        return min([(i[0], np.linalg.norm(dat-self.centroids[i[0]])) \
-                                for i in enumerate(self.centroids)], key=lambda t:t[1])[0]
+
+        all_values = []
+        for i in enumerate(self.centroids):
+            first = i[0]
+            second = np.linalg.norm(dat - self.centroid[i[0]])
+            curr = (first, second)
+            all_values.append(curr)
+
+        return min(all_values, key=lambda t: t[1])[0]
+
+#        return min([(i[0],
+#                     np.linalg.norm(dat-self.centroids[i[0]]))
+#                     for i in enumerate(self.centroids)],
+#                                        key=lambda t: t[1])[0]
 
     def assign_centers_to_data(self, X, centers):
         closest_centers = []
@@ -74,7 +89,7 @@ class LlyodsClustering:
         indx = -1
         for i in range(0, len(C)):
             distance = self.get_distance(C[i], data)
-            if clost_dist == None or distance < clost_dist:
+            if clost_dist is None or distance < clost_dist:
                 clost_dist = distance
                 indx = i
         return indx

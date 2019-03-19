@@ -64,7 +64,7 @@ class KPlusPlus:
         for i in range(0, len(C)):
             center = X[C[i]]
             distance = self.get_distance(center, data)
-            if clost_dist == None or distance < clost_dist:
+            if clost_dist is None or distance < clost_dist:
                 clost_dist = distance
         return clost_dist
 
@@ -81,7 +81,7 @@ class KPlusPlus:
         for i in range(0, len(C)):
             center = X[C[i]]
             distance = self.get_distance(center, data)
-            if clost_dist == None or distance < clost_dist:
+            if clost_dist is None or distance < clost_dist:
                 clost_dist = distance
                 indx = i
         return indx

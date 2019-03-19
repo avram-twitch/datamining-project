@@ -11,7 +11,7 @@ class RawDataProcessor:
     Processes raw h5 data files from Million Song Dataset (herafter MSD)
     """
 
-    def __init__(self, h5_files, artist_file, track_file):
+    def __init__(self, h5_files, artist_file, track_file, **kwargs):
         self.h5_files = h5_files
         (self.track_to_id,
          self.artist_to_ids,
@@ -23,6 +23,11 @@ class RawDataProcessor:
                              'loudness': {'gram_to_feature': {},
                                           'feature_to_gram': {},
                                           'count': 0}}
+
+        self.pitches_round = kwargs.get('pitches_round', 1)
+        self.pitches_k = kwargs.get('pitches_k', 5)
+        self.loudness_round = kwargs.get('loudness_round', 0)
+        self.loudness_k = kwargs.get('loudness_k', 5)
 
     def create_data(self, chunks=250, dump_dir="./data/"):
         """
@@ -118,9 +123,11 @@ class RawDataProcessor:
 
         h5 = self._read_h5_file(fp)
         loudness = h5['analysis']['segments_loudness_max']
-        loudness = self._process_array(loudness, 2, 'loudness', 0)
+        loudness = self._process_array(loudness, self.loudness_k,
+                                       'loudness', self.loudness_round)
         pitches = h5['analysis']['segments_pitches']
-        all_pitches = self._process_pitches(pitches, 2, 1)
+        all_pitches = self._process_pitches(pitches, self.pitches_k,
+                                            self.pitches_round)
         h5.close()
 
         out = {'artist': artist,

@@ -1,13 +1,7 @@
+Investigate more features from dataset (Avram/Angel)
+Create Clustering Visualization (Avram)
+Filter Data based on features (Avram)
+
 Have feature names reflect the type of data (pitches vs loudness)
 
-Create charts, tables, visualizations of LSH (Avram)
-Find better values for r and b for LSH (Avram)
-
-Implement Assignment Clustering (Angel)
-    k-means++
-    Lloyd Algo
-    Gonzales algo
-Compare performance of different Clustering methods (Angel)
-Create Visualization for Clusters (Angel)
-    Slices based on genre, year, artist
-
+Running on entire dataset (Both)

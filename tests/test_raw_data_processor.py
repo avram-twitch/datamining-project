@@ -81,7 +81,7 @@ def test_process_array(setup_data):
     assert set(out_3_set) == actual_3_set
 
 
-def test_process_pitches(setup_data):
+def test_process_2d_array(setup_data):
     data = setup_data
     in_array = [[0.11, 0.16, 0.1],
                 [0.16, 0.11, 0.49],
@@ -100,8 +100,8 @@ def test_process_pitches(setup_data):
                       (0.1, 0.1, 0.4): 1,
                       (0.1, 0.5, 0.4): 1,
                       (0.5, 0.4, 0.1): 1}
-    out_2_set = data._process_pitches(in_array, 2, 1)
-    out_3_set = data._process_pitches(in_array, 3, 1)
+    out_2_set = data._process_2d_array("pitches", in_array, 2, 1)
+    out_3_set = data._process_2d_array("pitches", in_array, 3, 1)
 
     for feature, count in out_2_set.items():
         key = data.features_map['pitches']['feature_to_gram'][feature]

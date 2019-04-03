@@ -25,13 +25,20 @@ class RawDataProcessor:
                 'gram_to_feature': {},
                 'feature_to_gram': {},
                 'count': 0
-            }
+            },
+            'timbre': {
+                'gram_to_feature': {},
+                'feature_to_gram': {},
+                'count': 0
+                }
         }
 
         self.pitches_round = kwargs.get('pitches_round', 1)
-        self.pitches_k = kwargs.get('pitches_k', 5)
+        self.pitches_k = kwargs.get('pitches_k', 4)
         self.loudness_round = kwargs.get('loudness_round', 0)
-        self.loudness_k = kwargs.get('loudness_k', 5)
+        self.loudness_k = kwargs.get('loudness_k', 4)
+        self.timbre_round = kwargs.get('timbre_round', -1)
+        self.timbre_k = kwargs.get('timbre_k', 4)
 
     def create_data(self, chunks=250, dump_dir="./data/"):
         """
@@ -121,21 +128,26 @@ class RawDataProcessor:
         :return: Dictionary with keys to each variable extracted.
         """
 
-        # track_id = self._scrub_filepath_for_id(fp)
-        # artist = self._get_artist(track_id)
-        # track = self._get_track(track_id)
         h5, meta = self._read_h5_file(fp)
+
+        # Process Meta
         track_id = meta['/analysis/songs']['track_id'][0]
         artist = meta['/metadata/songs']['artist_name'][0]
         track = meta['/metadata/songs']['title'][0]
         year = meta['/musicbrainz/songs']['year'][0]
         meta.close()
+
+        # Process Arrays
         loudness = h5['analysis']['segments_loudness_max']
         loudness = self._process_array(loudness, self.loudness_k,
                                        'loudness', self.loudness_round)
         pitches = h5['analysis']['segments_pitches']
-        all_pitches = self._process_pitches(pitches, self.pitches_k,
-                                            self.pitches_round)
+        all_pitches = self._process_2d_array("pitches", pitches,
+                                             self.pitches_k,
+                                             self.pitches_round)
+        timbre = h5['analysis']['segments_timbre']
+        all_timbre = self._process_2d_array("timbre", timbre, self.timbre_k,
+                                            self.timbre_round)
         h5.close()
 
         out = {
@@ -144,7 +156,8 @@ class RawDataProcessor:
             'id': track_id,
             'year': year,
             'loudness': loudness,
-            'pitches': all_pitches
+            'pitches': all_pitches,
+            'timbre': all_timbre
         }
 
         return out
@@ -161,15 +174,15 @@ class RawDataProcessor:
         counts = self._array_to_counts(featurized_k_grams)
         return counts
 
-    def _process_pitches(self, pitches, k, rounding=1):
-        instrument_pitches = list(zip(*pitches))
-        all_pitches = {}
-        for instrument in instrument_pitches:
-            k_grams = self._process_array(instrument, k, 'pitches', rounding)
+    def _process_2d_array(self, variable, array, k, rounding=1):
+        instrument_values = list(zip(*array))
+        all_values = {}
+        for instrument in instrument_values:
+            k_grams = self._process_array(instrument, k, variable, rounding)
             for gram, count in k_grams.items():
-                all_pitches[gram] = all_pitches.get(gram, 0) + count
+                all_values[gram] = all_values.get(gram, 0) + count
 
-        return all_pitches
+        return all_values
 
     def _featurize_k_grams(self, k_grams, feature):
 
@@ -181,6 +194,7 @@ class RawDataProcessor:
         return out
 
     def _get_feature_name(self, feature, gram):
+        # TODO Put locks around this...
         gram_to_feature = self.features_map[feature]['gram_to_feature']
         feature_to_gram = self.features_map[feature]['feature_to_gram']
         if gram not in gram_to_feature.keys():

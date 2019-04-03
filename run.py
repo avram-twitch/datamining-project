@@ -13,13 +13,8 @@ def process_raw_data():
     """
 
     print("Processing raw data into dictionaries")
-    unique_dir = "./MillionSongSubset/AdditionalFiles/"
     data_dir = "./raw_data/"
     dump_dir = "./data/pickled_files/"
-    if not os.path.exists(unique_dir):
-        print("Directory %s does not exist" % unique_dir)
-        print("Have you downloaded the MillionSongSubset?")
-        raise FileNotFoundError
 
     if not os.path.exists(data_dir):
         print("Directory %s does not exists" % data_dir)
@@ -29,14 +24,11 @@ def process_raw_data():
         print("Directory %s does not exists" % dump_dir)
         raise FileNotFoundError
 
-    unique_artist_fp = unique_dir + "subset_unique_artists.txt"
-    unique_tracks_fp = unique_dir + "subset_unique_tracks.txt"
-
     all_files = os.listdir(data_dir)
     for i in range(len(all_files)):
         all_files[i] = data_dir + all_files[i]
 
-    data = RawDataProcessor(all_files, unique_artist_fp, unique_tracks_fp)
+    data = RawDataProcessor(all_files)
     data.create_data(chunks=250, dump_dir=dump_dir)
 
 

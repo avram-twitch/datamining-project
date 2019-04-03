@@ -1,4 +1,4 @@
-PIP = pip3
+PIP = pip
 PYTHON = python3
 
 .PHONY: agg_data

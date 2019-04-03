@@ -1,5 +1,6 @@
 import h5py
 import pickle
+import pandas as pd
 # import multiprocessing as mp
 import os
 
@@ -13,8 +14,6 @@ class RawDataProcessor:
 
     def __init__(self, h5_files, artist_file, track_file, **kwargs):
         self.h5_files = h5_files
-        (self.track_to_id, self.artist_to_ids,
-         self.id_to_artist_track) = self._read_unique_tracks(track_file)
 
         self.features_map = {
             'pitches': {
@@ -124,18 +123,21 @@ class RawDataProcessor:
         :return: Dictionary with keys to each variable extracted.
         """
 
-        track_id = self._scrub_filepath_for_id(fp)
-        artist = self._get_artist(track_id)
-        track = self._get_track(track_id)
-        h5 = self._read_h5_file(fp)
+        # track_id = self._scrub_filepath_for_id(fp)
+        # artist = self._get_artist(track_id)
+        # track = self._get_track(track_id)
+        h5, meta = self._read_h5_file(fp)
+        track_id = meta['/analysis/songs']['track_id'][0]
+        artist = meta['/metadata/songs']['artist_name'][0]
+        track = meta['/metadata/songs']['title'][0]
+        year = meta['/musicbrainz/songs']['year'][0]
+        meta.close()
         loudness = h5['analysis']['segments_loudness_max']
         loudness = self._process_array(loudness, self.loudness_k,
                                        'loudness', self.loudness_round)
         pitches = h5['analysis']['segments_pitches']
         all_pitches = self._process_pitches(pitches, self.pitches_k,
                                             self.pitches_round)
-        year = h5['musicbrainz']['songs']
-        year = self._process_year(year)
         h5.close()
 
         out = {
@@ -170,14 +172,6 @@ class RawDataProcessor:
                 all_pitches[gram] = all_pitches.get(gram, 0) + count
 
         return all_pitches
-
-    def _process_year(self, years):
-        years_ = list(zip(*years))
-        years_ = [i[0] for i in years_]
-        for yrs in years_:
-            if yrs != 0:
-                return yrs
-        return 0
 
     def _featurize_k_grams(self, k_grams, feature):
 
@@ -228,40 +222,6 @@ class RawDataProcessor:
         slices = [array[i:] for i in range(k)]
         return list(zip(*slices))
 
-    def _scrub_filepath_for_id(self, fp):
-        """
-        Extracts track id from filepath.
-        (The MSD format has the track id in the filename)
-
-        :param fp: Filepath of the h5 file to be processed.
-        :return: Track ID
-        """
-
-        # TODO: Does the track id exist in each h5 file? May be more
-        #       robust to get id there
-
-        length = len(fp.split('/'))
-        file_name = fp.split('/')[length - 1]
-        return file_name.split('.h5')[0]  # Assumes filename is track id
-
-    def _get_artist(self, id):
-        """
-        Given an id, returns the associated artist
-
-        :param id: Track id
-        :return: Name of artist
-        """
-        return self.id_to_artist_track[id]['artist']
-
-    def _get_track(self, id):
-        """
-        Given an id, returns the associated track
-
-        :param id: Track id
-        :return: Name of track
-        """
-        return self.id_to_artist_track[id]['track']
-
     def _read_h5_file(self, fp):
         """
         Wrapper to read an h5 file
@@ -270,49 +230,5 @@ class RawDataProcessor:
         :return: h5 File object (read only)
         """
         h5 = h5py.File(fp, 'r')
-        return h5
-
-    def _read_unique_artists(self, fp):
-        """
-        Extracts id-artists mappings from unique_artists file
-
-        :param fp: Filepath to unique artists file
-        :return: Two dictionaries, one with id as key, and the
-                other with artist as key.
-                Note that an artist may have multiple ids
-        """
-
-        artist_to_id = {}
-        id_to_artist = {}
-        with open(fp, 'r') as f:
-            for row in f:
-                id_1, id_2, id_3, artist = row.split("<SEP>")
-                curr_item = artist_to_id.get(artist, [])
-                curr_item.append(id_3)
-                artist_to_id[artist] = curr_item
-                id_to_artist[id_3] = artist
-
-        return artist_to_id, id_to_artist
-
-    def _read_unique_tracks(self, fp):
-        """
-        Extracts id-artists mappings from unique_tracks file
-
-        :param fp: Filepath to unique tracks csv file
-        :return: two dictionaries, one with id as key, and the
-                other with track as key.
-        """
-
-        track_to_id = {}
-        artist_to_ids = {}
-        id_to_artist_track = {}
-        with open(fp, 'r') as f:
-            for row in f:
-                id_1, id_2, artist, track = row.split("<SEP>")
-                curr_item = artist_to_ids.get(artist, [])
-                curr_item.append(id_1)
-                artist_to_ids[artist] = curr_item
-                track_to_id[track] = id_1
-                id_to_artist_track[id_1] = {'artist': artist, 'track': track}
-
-        return track_to_id, artist_to_ids, id_to_artist_track
+        meta = pd.HDFStore(fp, 'r')
+        return h5, meta

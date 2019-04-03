@@ -34,7 +34,9 @@ class DictToMatrix:
 
             count += 1
             if count % chunk == 0:
-                self.save_files(all_loudness, all_pitches, all_timbre, all_meta, out_data_dir, file_count)
+                self.save_files(all_loudness, all_pitches,
+                                all_timbre, all_meta, out_data_dir,
+                                file_count)
                 file_count += 1
                 del all_meta
                 del all_loudness
@@ -45,9 +47,13 @@ class DictToMatrix:
                 all_pitches = []
                 all_timbre = []
 
-        self.save_files(all_loudness, all_pitches, all_timbre, all_meta, out_data_dir, file_count)
+        self.save_files(all_loudness, all_pitches,
+                        all_timbre, all_meta, out_data_dir,
+                        file_count)
 
-    def save_files(self, all_loudness, all_pitches, all_timbre, all_meta, out_data_dir, count):
+    def save_files(self, all_loudness, all_pitches,
+                   all_timbre, all_meta, out_data_dir,
+                   count):
         print("Saving file {}".format(count))
         out_loudness = self.unequal_lists_to_np_array(all_loudness, 'loudness')
         out_pitches = self.unequal_lists_to_np_array(all_pitches, 'pitches')
@@ -70,8 +76,8 @@ class DictToMatrix:
             delimiter=',',
             fmt="%d")
         np.savetxt(
-            out_data_dir + "metadata" + str(count) + ".tsv", out_meta, delimiter='\t', fmt="%s")
-
+            out_data_dir + "metadata" + str(count) +
+            ".tsv", out_meta, delimiter='\t', fmt="%s")
 
     def open_pickle_file(self, fp):
         with open(fp, 'rb') as f:

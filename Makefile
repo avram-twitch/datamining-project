@@ -33,3 +33,8 @@ setup:
 .PHONY: test
 test: lint
 	$(PYTHON) -m pytest ./tests/
+
+.PHONY: download_subset
+download_subset:
+	curl http://static.echonest.com/millionsongsubset_full.tar.gz > millionsongsubset.tar.gz
+	tar -xvzf millionsonbsubset.tar.gz

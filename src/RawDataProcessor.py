@@ -12,7 +12,7 @@ class RawDataProcessor:
     Processes raw h5 data files from Million Song Dataset (herafter MSD)
     """
 
-    def __init__(self, h5_files, artist_file, track_file, **kwargs):
+    def __init__(self, h5_files, **kwargs):
         self.h5_files = h5_files
 
         self.features_map = {
@@ -38,8 +38,6 @@ class RawDataProcessor:
         Processes h5 files into pickled chunks.
 
         :param h5_files: list of paths to h5 files to be processed.
-        :param artist_file: path to artist info csv file.
-        :param track_file: path to track info csv file
         :param chunks: number of h5 files to be processed before
                 they are downloaded as a pickled file
         :param dump_dir: folder path to directory where pickled files

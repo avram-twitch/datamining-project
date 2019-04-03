@@ -1,4 +1,3 @@
-Investigate more features from dataset (Avram/Angel)
 Create Clustering Visualization (Avram)
 Filter Data based on features (Avram)
 

@@ -1,8 +1,10 @@
 import h5py
 import pickle
 import pandas as pd
-# import multiprocessing as mp
+import multiprocessing as mp
 import os
+
+lock = mp.Lock()
 
 
 class RawDataProcessor:
@@ -33,12 +35,14 @@ class RawDataProcessor:
                 }
         }
 
-        self.pitches_round = kwargs.get('pitches_round', 1)
+        self.pitches_round = kwargs.get('pitches_round', 0)
         self.pitches_k = kwargs.get('pitches_k', 4)
-        self.loudness_round = kwargs.get('loudness_round', 0)
+        self.loudness_round = kwargs.get('loudness_round', -1)
         self.loudness_k = kwargs.get('loudness_k', 4)
-        self.timbre_round = kwargs.get('timbre_round', -1)
+        self.timbre_round = kwargs.get('timbre_round', -2)
         self.timbre_k = kwargs.get('timbre_k', 4)
+
+        # self.lock = mp.Lock()
 
     def create_data(self, chunks=250, dump_dir="./data/"):
         """
@@ -58,11 +62,11 @@ class RawDataProcessor:
 
         p_args = self._create_parallel_args(chunks, dump_dir)
 
-        # pool = mp.Pool(processes=mp.cpu_count())
-        # pool.starmap(self._process_chunk, p_args)
+        pool = mp.Pool(processes=mp.cpu_count())
+        pool.starmap(self._process_chunk, p_args)
 
-        for args in p_args:
-            self._process_chunk(*args)
+#        for args in p_args:
+#            self._process_chunk(*args)
 
     def _check_dump_dir_exists(self, dump_dir):
         return os.path.isdir(dump_dir)
@@ -195,6 +199,7 @@ class RawDataProcessor:
 
     def _get_feature_name(self, feature, gram):
         # TODO Put locks around this...
+        lock.acquire()
         gram_to_feature = self.features_map[feature]['gram_to_feature']
         feature_to_gram = self.features_map[feature]['feature_to_gram']
         if gram not in gram_to_feature.keys():
@@ -205,6 +210,7 @@ class RawDataProcessor:
             self.features_map[feature]['count'] += 1
 
         feature_name = gram_to_feature[gram]
+        lock.release()
         return feature_name
 
     def _array_to_counts(self, array):

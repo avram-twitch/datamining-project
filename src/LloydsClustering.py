@@ -66,7 +66,7 @@ class LloydsClustering:
         all_values = []
         for i in enumerate(self.centroids):
             first = i[0]
-            second = np.linalg.norm(dat - self.centroid[i[0]])
+            second = np.linalg.norm(dat - self.centroids[i[0]])
             curr = (first, second)
             all_values.append(curr)
 

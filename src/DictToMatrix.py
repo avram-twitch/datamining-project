@@ -20,7 +20,7 @@ class DictToMatrix:
         all_loudness = []
         all_pitches = []
         all_timbre = []
-        chunk = 5
+        chunk = 100
         count = 0
         file_count = 0
         for f in p_files:

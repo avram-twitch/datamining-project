@@ -2,8 +2,8 @@
     @author - Angel Dhungana
     LLoyds Class
 '''
-# import random
 import numpy as np
+import copy
 
 
 class LloydsClustering:
@@ -23,7 +23,7 @@ class LloydsClustering:
         self.centroids = _centroids
         self.MAX_ITERATIONS = 300
 
-    def fit(self, X):
+    def fit(self, X, years):
         '''
             Runs the LLyod's algorithm
         '''
@@ -31,12 +31,14 @@ class LloydsClustering:
         iterations = 0
         while not (self._converged(prev_cen, iterations)):
             iterations += 1
-            clusters = [[] for i in range(self.n_centers)]
-            clusters = self.calculate_dist(X, clusters)
+            clusters, year_clusters = self.calculate_dist(X, years)
             index = 0
             for cluster in clusters:
-                prev_cen[index] = self.centroids[index]
-                self.centroids[index] = np.mean(cluster, axis=0).tolist()
+                prev_cen[index] = copy.deepcopy(self.centroids[index])
+                # self.centroids[index] = np.mean(cluster, axis=0).tolist()
+                oldest = self._get_oldest(clusters[index],
+                                          year_clusters[index])
+                self.centroids[index] = np.mean(oldest, axis=0).tolist()
                 index += 1
 
     def _centroids(self):
@@ -45,21 +47,52 @@ class LloydsClustering:
     def _converged(self, centroids, iterations):
         if iterations > self.MAX_ITERATIONS:
             return True
-        return centroids == self.centroids
 
-    def calculate_dist(self, data, clusters):
+        for i in range(len(centroids)):
+            if type(centroids[i]) != list:
+                first = centroids[i].tolist()
+            else:
+                first = centroids[i]
+
+            if type(self.centroids[i]) != list:
+                second = self.centroids[i].tolist()
+            else:
+                second = self.centroids[i]
+
+            if first != second:
+                return False
+
+        return True
+
+    def _get_oldest(self, cluster, year_cluster):
+        # Gets all oldest data points
+
+        non_zero_years = [x for x in year_cluster if x != 0]
+        if len(non_zero_years) > 0:
+            min_year = min(non_zero_years)
+        else:
+            min_year = 0
+        oldest = [cluster[x] for x in range(len(cluster))
+                  if year_cluster[x] == min_year]
+        return oldest
+
+    def calculate_dist(self, data, years):
+        clusters = [[] for i in range(self.n_centers)]
+        year_clusters = [[] for i in range(self.n_centers)]
+        year_index = 0
         for dat in data:
             mu_index = self.norm_min(dat)
-            if mu_index in clusters:
-                clusters[mu_index].append(dat)
-            else:
-                clusters[mu_index] = [dat]
+            clusters[mu_index].append(dat)
+            year_clusters[mu_index].append(years[year_index])
+
+            year_index += 1
+
         for cluster in clusters:
             if not cluster:
                 cluster.append(data[np.random.randint(
                     0, len(data), size=1)].flatten().tolist())
 
-        return clusters
+        return clusters, year_clusters
 
     def norm_min(self, dat):
 

@@ -1,8 +1,11 @@
 import os
 import sys
+import numpy as np
 from src.RawDataProcessor import RawDataProcessor
 from src.DictToMatrix import DictToMatrix
 from src.LocalitySensitiveHash import LSH
+from src.LloydsClustering import LloydsClustering
+from src.KPlusPlus import KPlusPlus
 # from src.Minhash import Minhash
 import numpy as np
 
@@ -69,6 +72,47 @@ def run_lsh():
         metadata = list(f)
         for item in out:
             print(metadata[item].replace("\n", ""))
+
+def run_lloyds():
+    k = 10
+    fp = 'data/matrix_files/all.csv'
+    meta_fp = 'data/matrix_files/years.txt'
+
+    start = time.time()
+    print("Loading data")
+    data = np.genfromtxt(fp, delimiter=',')
+    years = np.genfromtxt(meta_fp)
+    end = time.time()
+    print("Took {}".format(end - start))
+
+    start = time.time()
+    gc = KPlusPlus.KPlusPlus(k)
+    print("Running K++")
+    gc.fit(data)
+    end = time.time()
+    print("Took {}".format(end - start))
+
+    # centers = data[:k,:]
+    centers = gc._centers()
+    centers = data[centers, :]
+    ll = LloydsClustering.LloydsClustering(len(centers), centers)
+    start = time.time()
+    print("Running Lloyds")
+    ll.fit(data, years)
+    end = time.time()
+    print("Took {}".format(end - start))
+
+    print("Assigning clusters...")
+    start = time.time()
+    centroids = ll._centroids()
+    closest_centers = ll.assign_centers_to_data(data, centroids)
+    end = time.time()
+    print("Took {}".format(end - start))
+
+    with open("results.txt", 'w') as f:
+
+        for center in closest_centers:
+            f.write("%s\n" % center)
 
 
 if __name__ == '__main__':

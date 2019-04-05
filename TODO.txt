@@ -1,6 +1,4 @@
 Create Clustering Visualization (Avram)
 Filter Data based on features (Avram)
 
-Have feature names reflect the type of data (pitches vs loudness)
-
 Running on entire dataset (Both)

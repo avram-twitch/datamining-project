@@ -1,11 +1,3 @@
-Loading data
-Took 11.660006284713745
-Running K++
-Took 398.68651580810547
-Running Lloyds
-Took 0.6410729885101318
-Assigning clusters...
-Took 87.75229907035828
 5
 8
 8

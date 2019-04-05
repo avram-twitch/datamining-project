@@ -6,6 +6,7 @@ from src.DictToMatrix import DictToMatrix
 from src.LocalitySensitiveHash import LSH
 from src.LloydsClustering import LloydsClustering
 from src.KPlusPlus import KPlusPlus
+from src.Plotter import Plotter
 # from src.Minhash import Minhash
 import numpy as np
 
@@ -74,6 +75,11 @@ def run_lsh():
             print(metadata[item].replace("\n", ""))
 
 def run_lloyds():
+    """
+    Runs alteration of Lloyds algorithm
+    Performs lloyds normally, but new centers are
+    average of _oldest_ songs in cluster.
+    """
     k = 10
     fp = 'data/matrix_files/all.csv'
     meta_fp = 'data/matrix_files/years.txt'
@@ -114,11 +120,34 @@ def run_lloyds():
         for center in closest_centers:
             f.write("%s\n" % center)
 
+def plot():
+    """
+    Simple plots of results.txt
+    Plots each cluster in a separate plot.
+    Plots all data, then creates plots for each decade
+    """
+    results_fp = "./results.txt"
+    metadata_fp = "./data/matrix_files/metadata.tsv"
+    plotter = Plotter(results_fp, metadata_fp)
+    args = [("all.png", "all"),
+            ("1950.png", "1950"),
+            ("1960.png", "1960"),
+            ("1970.png", "1970"),
+            ("1980.png", "1980"),
+            ("1990.png", "1990"),
+            ("2000.png", "2000"),
+            ("2010.png", "2010")]
+    for arg in args:
+        fp = arg[0]
+        decade = arg[1]
+        plotter.plot(fp, decade, False)
 
 if __name__ == '__main__':
     options = {'to_matrix': to_matrix,
                'process_raw': process_raw_data,
-               'run_lsh': run_lsh}
+               'run_lsh': run_lsh,
+               'run_lloyds': run_lloyds,
+               'plot': plot}
 
     if len(sys.argv) == 1:
         print("Usage: Supply command arg to run a task")

@@ -1,13 +1,15 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+
 class Plotter:
 
     def __init__(self, results_fp, metadata_fp):
         self.data, self.counts = self.extract_clusters(results_fp)
         self.years, year_counts = self.extract_years(metadata_fp)
         self.decades, self.decade_counts = self.years_to_decades(self.years)
-        self.all_data = self.combine_clusters_and_decades(self.data, self.decades)
+        self.all_data = self.combine_clusters_and_decades(self.data,
+                                                          self.decades)
         self.n_clusters = len(self.counts.keys())
         self.xlims = (-1.1, 1.1)
         self.ylims = (-1.1, 1.1)
@@ -22,9 +24,9 @@ class Plotter:
         for i in range(self.n_clusters):
             curr_data = [x for x in plot_data if x['cluster'] == str(i)]
             count = len(curr_data)
-            ax = plt.subplot(5, 2, i + 1)  # Is there a smart,
-                                           # automatic way to determine a
-                                           # good layout?
+
+            # Is there a smart, automatic way to determine a good layout?
+            ax = plt.subplot(5, 2, i + 1)
             ax.set_xlim(*self.xlims)
             ax.set_ylim(*self.ylims)
             ax.get_xaxis().set_visible(False)
@@ -105,7 +107,6 @@ class Plotter:
     def combine_clusters_and_decades(self, data, decades):
 
         all_data = []
-        cluster_sum = {}
         for i in range(len(data)):
             curr = {}
             curr['cluster'] = data[i]

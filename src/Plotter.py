@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+
 class Plotter:
 
     def __init__(self, results_fp, metadata_fp, terms_fp):
@@ -57,7 +58,7 @@ class Plotter:
 
         for i in range(self.n_clusters):
             cluster = str(i)
-            curr_data = plot_data[cluster] 
+            curr_data = plot_data[cluster]
             count = curr_data['count']
             unfiltered_count = curr_data['total_count']
             perc = curr_data['percentage'] * 100
@@ -72,7 +73,9 @@ class Plotter:
                 X = np.random.uniform(-1, 1, (count, 1))
                 Y = np.random.uniform(-1, 1, (count, 1))
                 plt.scatter(X, Y, alpha=0.25)
-            plt.text(0, 0, "{}/{}\n{:.0f}%".format(count, unfiltered_count, perc))
+            plt.text(0, 0, "{}/{}\n{:.0f}%".format(count,
+                                                   unfiltered_count,
+                                                   perc))
 
         plt.savefig(plot_fp)
         if show:

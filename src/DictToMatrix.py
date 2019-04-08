@@ -27,7 +27,8 @@ class DictToMatrix:
         for f in p_files:
             pf_data = self.open_pickle_file(data_dir + f)
             for row in pf_data:
-                meta_data, loudness, pitches, timbre, terms = self.process_file(row)
+                meta_data, loudness, \
+                    pitches, timbre, terms = self.process_file(row)
                 all_meta.append(meta_data)
                 all_loudness.append(loudness)
                 all_pitches.append(pitches)

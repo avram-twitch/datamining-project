@@ -109,9 +109,10 @@ def run_lloyds(fp):
         for center in closest_centers:
             f.write("%s\n" % center)
 
+
 def plot():
     top_terms_fp = "./results/top_tags.txt"
-    clustering_fp = "./results/clusterings_with_all.txt"
+    clustering_fp = "./results/clusterings_with_timbre.txt"
     metadata_fp = "./data/matrix_files/metadata0.tsv"
     terms_fp = "./data/matrix_files/terms0.csv"
     results_folder = "./results/"
@@ -139,7 +140,9 @@ def plot():
             curr.append(summary['stddev'])
             all_summaries.append(curr)
 
-    sorted_summaries = sorted(all_summaries, key=operator.itemgetter(3), reverse=True)
+    sorted_summaries = sorted(all_summaries,
+                              key=operator.itemgetter(3),
+                              reverse=True)
     for i in range(10):
         decade = sorted_summaries[i][0]
         term = sorted_summaries[i][1]
@@ -159,6 +162,7 @@ def cluster_all():
     with open(out_fp, 'w') as f:
         for center in closest_centers:
             f.write("%s\n" % center)
+
 
 def cluster_timbre():
     data_fp = "data/matrix_files/timbre_matrix0.csv"

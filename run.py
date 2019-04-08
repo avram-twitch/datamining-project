@@ -56,21 +56,18 @@ def to_matrix():
     data.run(data_dir, out_data_dir)
 
 
-def run_lloyds():
+def run_lloyds(fp):
     """
     Runs alteration of Lloyds algorithm
     Performs lloyds normally, but new centers are
     average of _oldest_ songs in cluster.
     """
     k = 10
-    fp = 'data/matrix_files/all.csv'
-    # meta_fp = 'data/matrix_files/years.txt'
     meta_fp = 'data/matrix_files/metadata0.tsv'
 
     start = time.time()
     print("Loading data")
     data = np.genfromtxt(fp, delimiter=',')
-    # years = np.genfromtxt(meta_fp)
     years = []
     with open(meta_fp, 'r') as f:
         for line in f:
@@ -90,7 +87,6 @@ def run_lloyds():
     end = time.time()
     print("Took {}".format(end - start))
 
-    # centers = data[:k,:]
     centers = gc._centers()
     centers = data[centers, :]
     ll = LloydsClustering(len(centers), centers)
@@ -106,6 +102,7 @@ def run_lloyds():
     closest_centers = ll.assign_centers_to_data(data, centroids)
     end = time.time()
     print("Took {}".format(end - start))
+    return closest_centers
 
     with open("./results/clusterings_with_all.txt", 'w') as f:
 
@@ -153,10 +150,31 @@ def plot():
         wr = csv.writer(f)
         wr.writerows(all_summaries)
 
+
+def cluster_all():
+    data_fp = "data/matrix_files/all.csv"
+    closest_centers = run_lloyds(data_fp)
+    out_fp = "./results/clusterings_with_all.txt"
+
+    with open(out_fp, 'w') as f:
+        for center in closest_centers:
+            f.write("%s\n" % center)
+
+def cluster_timbre():
+    data_fp = "data/matrix_files/timbre_matrix0.csv"
+    closest_centers = run_lloyds(data_fp)
+    out_fp = "./results/clusterings_with_timbre.txt"
+
+    with open(out_fp, 'w') as f:
+        for center in closest_centers:
+            f.write("%s\n" % center)
+
+
 if __name__ == '__main__':
     options = {'to_matrix': to_matrix,
                'process_raw': process_raw_data,
-               'run_lloyds': run_lloyds,
+               'cluster_all': cluster_all,
+               'cluster_timbre': cluster_timbre,
                'plot': plot}
 
     if len(sys.argv) == 1:

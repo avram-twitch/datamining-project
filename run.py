@@ -114,7 +114,7 @@ def run_lloyds():
 
 def plot():
     top_terms_fp = "./results/top_tags.txt"
-    clustering_fp = "./results/clusterings.txt"
+    clustering_fp = "./results/clusterings_with_all.txt"
     metadata_fp = "./data/matrix_files/metadata0.tsv"
     terms_fp = "./data/matrix_files/terms0.csv"
     results_folder = "./results/"

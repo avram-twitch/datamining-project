@@ -64,17 +64,27 @@ def run_lloyds():
     """
     k = 10
     fp = 'data/matrix_files/all.csv'
-    meta_fp = 'data/matrix_files/years.txt'
+    # meta_fp = 'data/matrix_files/years.txt'
+    meta_fp = 'data/matrix_files/metadata0.tsv'
 
     start = time.time()
     print("Loading data")
     data = np.genfromtxt(fp, delimiter=',')
-    years = np.genfromtxt(meta_fp)
+    # years = np.genfromtxt(meta_fp)
+    years = []
+    with open(meta_fp, 'r') as f:
+        for line in f:
+            curr = line.split("\n")[0]
+            curr = curr.split("\t")
+            year = curr[3]
+            years.append(year)
+
+    years = np.array(years)
     end = time.time()
     print("Took {}".format(end - start))
 
     start = time.time()
-    gc = KPlusPlus.KPlusPlus(k)
+    gc = KPlusPlus(k)
     print("Running K++")
     gc.fit(data)
     end = time.time()
@@ -83,7 +93,7 @@ def run_lloyds():
     # centers = data[:k,:]
     centers = gc._centers()
     centers = data[centers, :]
-    ll = LloydsClustering.LloydsClustering(len(centers), centers)
+    ll = LloydsClustering(len(centers), centers)
     start = time.time()
     print("Running Lloyds")
     ll.fit(data, years)
@@ -97,7 +107,7 @@ def run_lloyds():
     end = time.time()
     print("Took {}".format(end - start))
 
-    with open("results.txt", 'w') as f:
+    with open("./results/clusterings_with_all.txt", 'w') as f:
 
         for center in closest_centers:
             f.write("%s\n" % center)

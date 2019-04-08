@@ -1,59 +1,59 @@
-b'classical'
-b'oldies'
-b'dub'
-b'new wave'
-b'soft rock'
-b'blues-rock'
-b'synthpop'
-b'chill-out'
-b'heavy metal'
-b'folk rock'
-b'90s'
-b'techno'
-b'germany'
-b'r&b'
-b'electronica'
-b'female vocalist'
-b'ballad'
-b'hardcore'
-b'electro'
-b'easy listening'
-b'disco'
-b'80s'
-b'indie rock'
-b'house'
-b'male vocalist'
-b'vocal'
-b'ambient'
-b'downtempo'
-b'rap'
-b'singer-songwriter'
-b'classic'
-b'reggae'
-b'hard rock'
-b'latin'
-b'metal'
-b'instrumental'
-b'experimental'
-b'world'
-b'soundtrack'
-b'acoustic'
-b'classic rock'
-b'funk'
-b'guitar'
-b'indie'
-b'punk'
-b'american'
-b'country'
-b'blues'
-b'pop rock'
-b'soul'
-b'alternative'
-b'folk'
-b'alternative rock'
-b'hip hop'
-b'united states'
-b'jazz'
-b'electronic'
-b'pop'
-b'rock'
+classical
+oldies
+dub
+new wave
+soft rock
+blues-rock
+synthpop
+chill-out
+heavy metal
+folk rock
+90s
+techno
+germany
+r&b
+electronica
+female vocalist
+ballad
+hardcore
+electro
+easy listening
+disco
+80s
+indie rock
+house
+male vocalist
+vocal
+ambient
+rap
+downtempo
+singer-songwriter
+classic
+reggae
+hard rock
+latin
+metal
+instrumental
+experimental
+world
+soundtrack
+acoustic
+classic rock
+funk
+guitar
+indie
+punk
+american
+country
+blues
+pop rock
+soul
+alternative
+folk
+alternative rock
+hip hop
+united states
+jazz
+electronic
+pop
+rock

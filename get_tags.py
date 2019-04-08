@@ -28,8 +28,7 @@ def to_string(x):
 def write_tags(fp, tags):
     with open(fp, 'w') as f:
         for terms in tags:
-            curr = map(to_string, terms)
-            out = ",".join(curr)
+            out = ",".join(terms)
             f.write("{}\n".format(out))
 
 if __name__=='__main__':
@@ -41,11 +40,11 @@ if __name__=='__main__':
     all_terms = []
     for _id in ids:
         with read_h5_file(rawdata_folder + _id + ".h5") as h5:
-            terms = list(h5['metadata']['artist_terms'])
+            terms = list(map(to_string, list(h5['metadata']['artist_terms'])))
             all_terms.append(terms)
             for term in terms:
-                curr_term = str(term)
-                genres[curr_term] = genres.get(curr_term, 0) + 1
+                # curr_term = term.decode("UTF-8")
+                genres[term] = genres.get(term, 0) + 1
 
     write_tags("./data/matrix_files/terms.txt", all_terms)
     sorted_genres = sorted(genres.items(), key=operator.itemgetter(1))

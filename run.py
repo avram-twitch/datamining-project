@@ -2,6 +2,7 @@ import os
 import sys
 import numpy as np
 import time
+import csv
 
 from src.RawDataProcessor import RawDataProcessor
 from src.DictToMatrix import DictToMatrix
@@ -133,12 +134,43 @@ def plot_terms():
     plotter = Plotter(clustering_fp, metadata_fp, terms_fp)
     plotter.filter_and_plot(results_folder + "rock.png", "all", "rock", False)
 
+def summarize_top_terms():
+    top_terms_fp = "./results/top_tags.txt"
+    top_terms = []
+    with open(top_terms_fp, 'r') as f:
+        for line in f:
+            curr = line.split("\n")[0]
+            top_terms.append(curr)
+
+    all_summaries = []
+    clustering_fp = "./results/clusterings.txt"
+    metadata_fp = "./data/matrix_files/metadata.tsv"
+    terms_fp = "./data/matrix_files/terms.txt"
+    results_folder = "./results/"
+    plotter = Plotter(clustering_fp, metadata_fp, terms_fp)
+    for term in top_terms:
+        curr = []
+        filtered = plotter.filter_data("all", term)
+        summary = plotter.summarize_to_clusters(filtered)
+        curr.append(term)
+        curr.append(summary['mean'])
+        curr.append(summary['stddev'])
+        all_summaries.append(curr)
+
+    with open("./results/all_summaries.csv", 'w') as f:
+        wr = csv.writer(f)
+        wr.writerows(all_summaries)
+#        for line in all_summaries:
+#            wr.writerow(line)
+
+
 if __name__ == '__main__':
     options = {'to_matrix': to_matrix,
                'process_raw': process_raw_data,
                'run_lloyds': run_lloyds,
                'plot': plot,
-               'plot_terms': plot_terms}
+               'plot_terms': plot_terms,
+               'top_terms': summarize_top_terms}
 
     if len(sys.argv) == 1:
         print("Usage: Supply command arg to run a task")

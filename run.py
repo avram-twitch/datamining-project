@@ -110,9 +110,21 @@ def run_lloyds(fp):
             f.write("%s\n" % center)
 
 
-def plot():
-    top_terms_fp = "./results/top_tags.txt"
+def plot_all():
+    clustering_fp = "./results/clusterings_with_all.txt"
+    out_fp = "./results/all_summaries.csv"
+    plot(clustering_fp, out_fp)
+
+
+def plot_timbre():
     clustering_fp = "./results/clusterings_with_timbre.txt"
+    out_fp = "./results/timbre_summaries.csv"
+    plot(clustering_fp, out_fp)
+
+
+def plot(clustering_fp, out_fp):
+
+    top_terms_fp = "./results/top_tags.txt"
     metadata_fp = "./data/matrix_files/metadata0.tsv"
     terms_fp = "./data/matrix_files/terms0.csv"
     results_folder = "./results/"
@@ -149,9 +161,10 @@ def plot():
         fp = "{}{}-{}-plot.png".format(results_folder, decade, term)
         plotter.filter_and_plot(fp, decade, term, False)
 
-    with open("./results/all_summaries.csv", 'w') as f:
+    with open(out_fp, 'w') as f:
         wr = csv.writer(f)
         wr.writerows(all_summaries)
+
 
 
 def cluster_all():
@@ -179,7 +192,8 @@ if __name__ == '__main__':
                'process_raw': process_raw_data,
                'cluster_all': cluster_all,
                'cluster_timbre': cluster_timbre,
-               'plot': plot}
+               'plot_all': plot_all,
+               'plot_timbre': plot_timbre}
 
     if len(sys.argv) == 1:
         print("Usage: Supply command arg to run a task")

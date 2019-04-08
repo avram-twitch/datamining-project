@@ -152,6 +152,8 @@ class RawDataProcessor:
         timbre = h5['analysis']['segments_timbre']
         all_timbre = self._process_2d_array("timbre", timbre, self.timbre_k,
                                             self.timbre_round)
+        # Process Terms
+        terms = self._process_terms(h5)
         h5.close()
 
         out = {
@@ -161,10 +163,14 @@ class RawDataProcessor:
             'year': year,
             'loudness': loudness,
             'pitches': all_pitches,
-            'timbre': all_timbre
+            'timbre': all_timbre,
+            'terms': terms
         }
 
         return out
+
+    def _process_terms(self, h5):
+        return list(map(self.to_string, list(h5['metadata']['artist_terms'])))
 
     def _process_array(self, array, k, feature, rounding=1):
         """
@@ -250,3 +256,6 @@ class RawDataProcessor:
         h5 = h5py.File(fp, 'r')
         meta = pd.HDFStore(fp, 'r')
         return h5, meta
+
+    def to_string(self, x):
+        return x.decode("UTF-8")

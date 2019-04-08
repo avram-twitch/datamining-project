@@ -20,45 +20,53 @@ class DictToMatrix:
         all_loudness = []
         all_pitches = []
         all_timbre = []
+        all_terms = []
         chunk = 100
         count = 0
         file_count = 0
         for f in p_files:
             pf_data = self.open_pickle_file(data_dir + f)
             for row in pf_data:
-                meta_data, loudness, pitches, timbre = self.process_file(row)
+                meta_data, loudness, pitches, timbre, terms = self.process_file(row)
                 all_meta.append(meta_data)
                 all_loudness.append(loudness)
                 all_pitches.append(pitches)
                 all_timbre.append(timbre)
+                all_terms.append(terms)
 
             count += 1
             if count % chunk == 0:
                 self.save_files(all_loudness, all_pitches,
-                                all_timbre, all_meta, out_data_dir,
+                                all_timbre, all_meta, all_terms, out_data_dir,
                                 file_count)
                 file_count += 1
                 del all_meta
                 del all_loudness
                 del all_pitches
                 del all_timbre
+                del all_terms
                 all_meta = []
                 all_loudness = []
                 all_pitches = []
                 all_timbre = []
+                all_terms = []
 
         self.save_files(all_loudness, all_pitches,
-                        all_timbre, all_meta, out_data_dir,
+                        all_timbre, all_meta, all_terms, out_data_dir,
                         file_count)
 
     def save_files(self, all_loudness, all_pitches,
-                   all_timbre, all_meta, out_data_dir,
+                   all_timbre, all_meta, all_terms, out_data_dir,
                    count):
         print("Saving file {}".format(count))
         out_loudness = self.unequal_lists_to_np_array(all_loudness, 'loudness')
         out_pitches = self.unequal_lists_to_np_array(all_pitches, 'pitches')
         out_timbre = self.unequal_lists_to_np_array(all_timbre, 'timbre')
         out_meta = np.array(all_meta)
+        with open(out_data_dir + "terms" + str(count) + ".csv", 'w') as f:
+            for terms in all_terms:
+                out = ",".join(terms)
+                f.write("{}\n".format(out))
 
         np.savetxt(
             out_data_dir + "loudness_matrix" + str(count) + ".csv",
@@ -96,7 +104,8 @@ class DictToMatrix:
                                                    'loudness')
         pitches_data = self.expand_libsvm_to_list(data['pitches'], 'pitches')
         timbre_data = self.expand_libsvm_to_list(data['timbre'], 'timbre')
-        return meta_data, loudness_data, pitches_data, timbre_data
+        terms = data['terms']
+        return meta_data, loudness_data, pitches_data, timbre_data, terms
 
     def expand_libsvm_to_list(self, array, feature):
 

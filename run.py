@@ -3,6 +3,7 @@ import sys
 import numpy as np
 import time
 import csv
+import operator
 
 from src.RawDataProcessor import RawDataProcessor
 from src.DictToMatrix import DictToMatrix
@@ -101,76 +102,52 @@ def run_lloyds():
         for center in closest_centers:
             f.write("%s\n" % center)
 
-
 def plot():
-    """
-    Simple plots of results.txt
-    Plots each cluster in a separate plot.
-    Plots all data, then creates plots for each decade
-    """
-    clustering_fp = "./results/clusterings.txt"
-    metadata_fp = "./data/matrix_files/metadata.tsv"
-    terms_fp = "./data/matrix_files/terms.txt"
-    results_folder = "./results/"
-    plotter = Plotter(clustering_fp, metadata_fp, terms_fp)
-    args = [("all.png", "all"),
-            ("1950.png", "1950"),
-            ("1960.png", "1960"),
-            ("1970.png", "1970"),
-            ("1980.png", "1980"),
-            ("1990.png", "1990"),
-            ("2000.png", "2000"),
-            ("2010.png", "2010")]
-    for arg in args:
-        fp = arg[0]
-        decade = arg[1]
-        plotter.filter_and_plot(results_folder + fp, decade, None, False)
-
-def plot_terms():
-    clustering_fp = "./results/clusterings.txt"
-    metadata_fp = "./data/matrix_files/metadata.tsv"
-    terms_fp = "./data/matrix_files/terms.txt"
-    results_folder = "./results/"
-    plotter = Plotter(clustering_fp, metadata_fp, terms_fp)
-    plotter.filter_and_plot(results_folder + "rock.png", "all", "rock", False)
-
-def summarize_top_terms():
     top_terms_fp = "./results/top_tags.txt"
+    clustering_fp = "./results/clusterings.txt"
+    metadata_fp = "./data/matrix_files/metadata.tsv"
+    terms_fp = "./data/matrix_files/terms.txt"
+    results_folder = "./results/"
+
     top_terms = []
     with open(top_terms_fp, 'r') as f:
         for line in f:
             curr = line.split("\n")[0]
             top_terms.append(curr)
 
+    top_terms.append(None)
+    decades = [str(x) for x in range(1950, 2020, 10)]
+    decades.append("all")
+
     all_summaries = []
-    clustering_fp = "./results/clusterings.txt"
-    metadata_fp = "./data/matrix_files/metadata.tsv"
-    terms_fp = "./data/matrix_files/terms.txt"
-    results_folder = "./results/"
     plotter = Plotter(clustering_fp, metadata_fp, terms_fp)
     for term in top_terms:
-        curr = []
-        filtered = plotter.filter_data("all", term)
-        summary = plotter.summarize_to_clusters(filtered)
-        curr.append(term)
-        curr.append(summary['mean'])
-        curr.append(summary['stddev'])
-        all_summaries.append(curr)
+        for decade in decades:
+            curr = []
+            filtered = plotter.filter_data(decade, term)
+            summary = plotter.summarize_to_clusters(filtered)
+            curr.append(decade)
+            curr.append(term)
+            curr.append(summary['mean'])
+            curr.append(summary['stddev'])
+            all_summaries.append(curr)
+
+    sorted_summaries = sorted(all_summaries, key=operator.itemgetter(3), reverse=True)
+    for i in range(10):
+        decade = sorted_summaries[i][0]
+        term = sorted_summaries[i][1]
+        fp = "{}{}-{}-plot.png".format(results_folder, decade, term)
+        plotter.filter_and_plot(fp, decade, term, False)
 
     with open("./results/all_summaries.csv", 'w') as f:
         wr = csv.writer(f)
         wr.writerows(all_summaries)
-#        for line in all_summaries:
-#            wr.writerow(line)
-
 
 if __name__ == '__main__':
     options = {'to_matrix': to_matrix,
                'process_raw': process_raw_data,
                'run_lloyds': run_lloyds,
-               'plot': plot,
-               'plot_terms': plot_terms,
-               'top_terms': summarize_top_terms}
+               'plot': plot}
 
     if len(sys.argv) == 1:
         print("Usage: Supply command arg to run a task")

@@ -107,9 +107,11 @@ def plot():
     Plots each cluster in a separate plot.
     Plots all data, then creates plots for each decade
     """
-    results_fp = "./results.txt"
+    clustering_fp = "./results/clusterings.txt"
     metadata_fp = "./data/matrix_files/metadata.tsv"
-    plotter = Plotter(results_fp, metadata_fp)
+    terms_fp = "./data/matrix_files/terms.txt"
+    results_folder = "./results/"
+    plotter = Plotter(clustering_fp, metadata_fp, terms_fp)
     args = [("all.png", "all"),
             ("1950.png", "1950"),
             ("1960.png", "1960"),
@@ -121,14 +123,15 @@ def plot():
     for arg in args:
         fp = arg[0]
         decade = arg[1]
-        plotter.plot(fp, decade, False)
+        plotter.filter_and_plot(results_folder + fp, decade, None, False)
 
 def plot_terms():
-    results_fp = "./results/clusterings.txt"
+    clustering_fp = "./results/clusterings.txt"
     metadata_fp = "./data/matrix_files/metadata.tsv"
     terms_fp = "./data/matrix_files/terms.txt"
-    plotter = Plotter(results_fp, metadata_fp, terms_fp)
-    plotter.plot("rock.png", "all", False, "rock")
+    results_folder = "./results/"
+    plotter = Plotter(clustering_fp, metadata_fp, terms_fp)
+    plotter.filter_and_plot(results_folder + "rock.png", "all", "rock", False)
 
 if __name__ == '__main__':
     options = {'to_matrix': to_matrix,

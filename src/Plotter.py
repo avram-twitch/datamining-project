@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-
 class Plotter:
 
     def __init__(self, results_fp, metadata_fp, terms_fp):
@@ -15,10 +14,11 @@ class Plotter:
         self.n_clusters = len(self.counts.keys())
         self.xlims = (-1.1, 1.1)
         self.ylims = (-1.1, 1.1)
-        self.unfiltered_counts = []
+        self.unfiltered_counts = {}
         for i in range(self.n_clusters):
             count = len([x for x in self.all_data if x['cluster'] == str(i)])
-            self.unfiltered_counts.append(count)
+            cluster = str(i)
+            self.unfiltered_counts[cluster] = count
 
     def filter_data(self, decade="all", term=None):
         if decade == "all":
@@ -31,20 +31,36 @@ class Plotter:
 
         return data
 
-    def plot(self, plot_fp, decade="all", show=True, term=None):
+    def summarize_to_clusters(self, data):
+        out_data = {}
+        all_percentages = []
+        for i in range(self.n_clusters):
+            cluster = str(i)
+            curr_data = [x for x in data if x['cluster'] == cluster]
+            count = len(curr_data)
+            percentage = float(count) / self.unfiltered_counts[cluster]
+            all_percentages.append(percentage)
+            curr = {}
+            curr['count'] = count
+            curr['total_count'] = self.unfiltered_counts[cluster]
+            curr['percentage'] = percentage
+            curr['cluster'] = cluster
+            out_data[cluster] = curr
 
-        if decade == "all":
-            plot_data = self.all_data
-        else:
-            plot_data = [x for x in self.all_data if x['decade'] == decade]
+        mean_p = np.mean(all_percentages)
+        std_dev_p = np.std(all_percentages)
+        out_data['mean'] = mean_p
+        out_data['stddev'] = std_dev_p
+        return out_data
 
-        if term is not None:
-            plot_data = [x for x in plot_data if term in x['terms']]
+    def plot(self, plot_fp, plot_data, show):
 
         for i in range(self.n_clusters):
-            curr_data = [x for x in plot_data if x['cluster'] == str(i)]
-            count = len(curr_data)
-            unfiltered_count = self.unfiltered_counts[i]
+            cluster = str(i)
+            curr_data = plot_data[cluster] 
+            count = curr_data['count']
+            unfiltered_count = curr_data['total_count']
+            perc = curr_data['percentage'] * 100
 
             # Is there a smart, automatic way to determine a good layout?
             ax = plt.subplot(5, 2, i + 1)
@@ -56,12 +72,17 @@ class Plotter:
                 X = np.random.uniform(-1, 1, (count, 1))
                 Y = np.random.uniform(-1, 1, (count, 1))
                 plt.scatter(X, Y, alpha=0.25)
-            plt.text(0, 0, "{}/{}\n{:.0f}%".format(count, unfiltered_count, count / unfiltered_count * 100))
+            plt.text(0, 0, "{}/{}\n{:.0f}%".format(count, unfiltered_count, perc))
 
         plt.savefig(plot_fp)
         if show:
             plt.show()
         plt.clf()
+
+    def filter_and_plot(self, plot_fp, decade="all", term=None, show=True):
+        filtered = self.filter_data(decade, term)
+        plot_data = self.summarize_to_clusters(filtered)
+        self.plot(plot_fp, plot_data, show)
 
     def print_decade_counts(self):
 

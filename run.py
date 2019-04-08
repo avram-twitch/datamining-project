@@ -123,12 +123,19 @@ def plot():
         decade = arg[1]
         plotter.plot(fp, decade, False)
 
+def plot_terms():
+    results_fp = "./results/clusterings.txt"
+    metadata_fp = "./data/matrix_files/metadata.tsv"
+    terms_fp = "./data/matrix_files/terms.txt"
+    plotter = Plotter(results_fp, metadata_fp, terms_fp)
+    plotter.plot("rock.png", "all", False, "rock")
 
 if __name__ == '__main__':
     options = {'to_matrix': to_matrix,
                'process_raw': process_raw_data,
                'run_lloyds': run_lloyds,
-               'plot': plot}
+               'plot': plot,
+               'plot_terms': plot_terms}
 
     if len(sys.argv) == 1:
         print("Usage: Supply command arg to run a task")

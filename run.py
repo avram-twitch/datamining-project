@@ -107,9 +107,21 @@ def run_lloyds(fp, n=10):
     return closest_centers
 
 
-def plot(postfix=""):
+def plot_all():
+    clustering_fp = "./results/clusterings_with_all.txt"
+    out_fp = "./results/all_summaries.csv"
+    plot(clustering_fp, out_fp)
+
+
+def plot_timbre():
+    clustering_fp = "./results/clusterings_with_timbre.txt"
+    out_fp = "./results/timbre_summaries.csv"
+    plot(clustering_fp, out_fp)
+
+
+def plot(clustering_fp, out_fp):
+
     top_terms_fp = "./results/top_tags.txt"
-    clustering_fp = "./results/clusterings_with_all" + postfix + ".txt"
     metadata_fp = "./data/matrix_files/metadata0.tsv"
     terms_fp = "./data/matrix_files/terms0.csv"
     results_folder = "./results/"
@@ -137,14 +149,16 @@ def plot(postfix=""):
             curr.append(summary['stddev'])
             all_summaries.append(curr)
 
-    sorted_summaries = sorted(all_summaries, key=operator.itemgetter(3), reverse=True)
+    sorted_summaries = sorted(all_summaries,
+                              key=operator.itemgetter(3),
+                              reverse=True)
     for i in range(10):
         decade = sorted_summaries[i][0]
         term = sorted_summaries[i][1]
         fp = "{}{}-{}-plot.png".format(results_folder, decade, term)
         plotter.filter_and_plot(fp, decade, term, False)
 
-    with open("./results/all_summaries" + postfix + ".csv", 'w') as f:
+    with open(out_fp, 'w') as f:
         wr = csv.writer(f)
         wr.writerows(all_summaries)
 
@@ -159,6 +173,7 @@ def cluster_all(n=10, postfix=""):
             f.write("%s\n" % center)
 
 def cluster_timbre(n=10):
+
     data_fp = "data/matrix_files/timbre_matrix0.csv"
     closest_centers = run_lloyds(data_fp, n)
     out_fp = "./results/clusterings_with_timbre.txt"
@@ -171,12 +186,28 @@ def run(k, n):
     k = int(k)
     n = int(n)
     postfix = "_{}_{}".format(k, n)
+    clustering_fp = "./results/clusterings_with_all" + postfix + ".txt"
+    out_fp = "./results/all_summaries" + postfix + ".txt"
+    # data_fp = "data/matrix_files/all.csv"
     print("Running with k={} and n={}".format(k, n))
+
     process_raw_data(k)
     to_matrix()
+    to_all()
     cluster_all(n, postfix)
-    plot(postfix)
+    plot(clustering_fp, out_fp)
 
+def to_all():
+    folder = "./data/matrix_files/"
+    loudness_fp = folder + "loudness_matrix0.csv"
+    pitches_fp = folder + "pitches_matrix0.csv"
+    timbres_fp = folder + "timbre_matrix0.csv"
+
+    loudness = np.loadtxt(loudness_fp, delimiter=",", dtype=int)
+    pitches = np.loadtxt(pitches_fp, delimiter=",", dtype=int)
+    timbre = np.loadtxt(timbres_fp, delimiter=",", dtype=int)
+    all_data = np.concatenate((loudness, pitches, timbre), axis=1)
+    np.savetxt(folder + "all.csv", all_data, fmt="%d", delimiter=",")
 
 
 if __name__ == '__main__':
@@ -185,7 +216,9 @@ if __name__ == '__main__':
                'cluster_all': cluster_all,
                'cluster_timbre': cluster_timbre,
                'plot': plot,
-               'run': run}
+               'run': run,
+               'plot_all': plot_all,
+               'plot_timbre': plot_timbre}
 
     if len(sys.argv) == 1:
         print("Usage: Supply command arg to run a task")

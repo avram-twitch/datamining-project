@@ -36,11 +36,11 @@ class RawDataProcessor:
         }
 
         self.pitches_round = kwargs.get('pitches_round', 0)
-        self.pitches_k = kwargs.get('pitches_k', 4)
+        self.pitches_k = int(kwargs.get('pitches_k', 4))
         self.loudness_round = kwargs.get('loudness_round', -1)
-        self.loudness_k = kwargs.get('loudness_k', 4)
+        self.loudness_k = int(kwargs.get('loudness_k', 4))
         self.timbre_round = kwargs.get('timbre_round', -2)
-        self.timbre_k = kwargs.get('timbre_k', 4)
+        self.timbre_k = int(kwargs.get('timbre_k', 4))
 
         # self.lock = mp.Lock()
 

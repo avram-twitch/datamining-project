@@ -12,7 +12,7 @@ from src.KPlusPlus import KPlusPlus
 from src.Plotter import Plotter
 
 
-def process_raw_data():
+def process_raw_data(k=4):
     """
     Processes raw h5 files into lists of pickled dicts.
     """
@@ -33,7 +33,10 @@ def process_raw_data():
     for i in range(len(all_files)):
         all_files[i] = data_dir + all_files[i]
 
-    data = RawDataProcessor(all_files)
+    data = RawDataProcessor(all_files,
+                            pitches_k=k,
+                            loudness_k=k,
+                            timbre_k=k)
     data.create_data(chunks=250, dump_dir=dump_dir)
 
 
@@ -56,13 +59,12 @@ def to_matrix():
     data.run(data_dir, out_data_dir)
 
 
-def run_lloyds(fp):
+def run_lloyds(fp, n=10):
     """
     Runs alteration of Lloyds algorithm
     Performs lloyds normally, but new centers are
     average of _oldest_ songs in cluster.
     """
-    k = 10
     meta_fp = 'data/matrix_files/metadata0.tsv'
 
     start = time.time()
@@ -81,7 +83,7 @@ def run_lloyds(fp):
     print("Took {}".format(end - start))
 
     start = time.time()
-    gc = KPlusPlus(k)
+    gc = KPlusPlus(n)
     print("Running K++")
     gc.fit(data)
     end = time.time()
@@ -104,14 +106,10 @@ def run_lloyds(fp):
     print("Took {}".format(end - start))
     return closest_centers
 
-    with open("./results/clusterings_with_all.txt", 'w') as f:
 
-        for center in closest_centers:
-            f.write("%s\n" % center)
-
-def plot():
+def plot(postfix=""):
     top_terms_fp = "./results/top_tags.txt"
-    clustering_fp = "./results/clusterings_with_all.txt"
+    clustering_fp = "./results/clusterings_with_all" + postfix + ".txt"
     metadata_fp = "./data/matrix_files/metadata0.tsv"
     terms_fp = "./data/matrix_files/terms0.csv"
     results_folder = "./results/"
@@ -146,28 +144,39 @@ def plot():
         fp = "{}{}-{}-plot.png".format(results_folder, decade, term)
         plotter.filter_and_plot(fp, decade, term, False)
 
-    with open("./results/all_summaries.csv", 'w') as f:
+    with open("./results/all_summaries" + postfix + ".csv", 'w') as f:
         wr = csv.writer(f)
         wr.writerows(all_summaries)
 
 
-def cluster_all():
+def cluster_all(n=10, postfix=""):
     data_fp = "data/matrix_files/all.csv"
-    closest_centers = run_lloyds(data_fp)
-    out_fp = "./results/clusterings_with_all.txt"
+    closest_centers = run_lloyds(data_fp, n)
+    out_fp = "./results/clusterings_with_all" + postfix + ".txt"
 
     with open(out_fp, 'w') as f:
         for center in closest_centers:
             f.write("%s\n" % center)
 
-def cluster_timbre():
+def cluster_timbre(n=10):
     data_fp = "data/matrix_files/timbre_matrix0.csv"
-    closest_centers = run_lloyds(data_fp)
+    closest_centers = run_lloyds(data_fp, n)
     out_fp = "./results/clusterings_with_timbre.txt"
 
     with open(out_fp, 'w') as f:
         for center in closest_centers:
             f.write("%s\n" % center)
+
+def run(k, n):
+    k = int(k)
+    n = int(n)
+    postfix = "_{}_{}".format(k, n)
+    print("Running with k={} and n={}".format(k, n))
+    process_raw_data(k)
+    to_matrix()
+    cluster_all(n, postfix)
+    plot(postfix)
+
 
 
 if __name__ == '__main__':
@@ -175,7 +184,8 @@ if __name__ == '__main__':
                'process_raw': process_raw_data,
                'cluster_all': cluster_all,
                'cluster_timbre': cluster_timbre,
-               'plot': plot}
+               'plot': plot,
+               'run': run}
 
     if len(sys.argv) == 1:
         print("Usage: Supply command arg to run a task")
@@ -185,7 +195,11 @@ if __name__ == '__main__':
             print("\t" + function.__doc__)
     else:
         task_name = sys.argv[1]
+        args = []
+        if len(sys.argv) > 2:
+            args = sys.argv[2:]
+
         try:
-            options[task_name]()
+            options[task_name](*args)
         except KeyError:
             print("'%s' task does not exist" % task_name)

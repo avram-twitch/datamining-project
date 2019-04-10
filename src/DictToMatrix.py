@@ -112,9 +112,10 @@ class DictToMatrix:
 
         self.max_features[feature] = self.max_features.get(feature, 0)
         int_keys = [int(key) for key in array.keys()]
-        max_key = max(int_keys)
-        if max_key + 1 > self.max_features[feature]:
-            self.max_features[feature] = max_key + 1
+        if len(int_keys) > 0:
+            max_key = max(int_keys)
+            if max_key + 1 > self.max_features[feature]:
+                self.max_features[feature] = max_key + 1
 
         out_list = [0 for i in range(self.max_features[feature])]
         for key, item in array.items():

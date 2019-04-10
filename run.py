@@ -191,7 +191,7 @@ def run(k, n):
     # data_fp = "data/matrix_files/all.csv"
     print("Running with k={} and n={}".format(k, n))
 
-    process_raw_data(k)
+    #process_raw_data(k)
     to_matrix()
     to_all()
     cluster_all(n, postfix)

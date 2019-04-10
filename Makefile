@@ -38,3 +38,8 @@ test: lint
 download_subset:
 	curl http://static.echonest.com/millionsongsubset_full.tar.gz > millionsongsubset.tar.gz
 	tar -xvzf millionsonbsubset.tar.gz
+
+.PHONY: run_clean
+run_clean:
+	rm -f ./data/matrix_files/*.csv
+	rm -f ./data/pickled_files/*.pkl

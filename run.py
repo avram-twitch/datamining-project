@@ -108,18 +108,27 @@ def run_lloyds(fp, n=10):
 
 
 def plot_all():
+    """
+    Plots using all data
+    """
     clustering_fp = "./results/clusterings_with_all.txt"
     out_fp = "./results/all_summaries.csv"
     plot(clustering_fp, out_fp)
 
 
 def plot_timbre():
+    """
+    Plots using timbre data
+    """
     clustering_fp = "./results/clusterings_with_timbre.txt"
     out_fp = "./results/timbre_summaries.csv"
     plot(clustering_fp, out_fp)
 
 
 def plot(clustering_fp, out_fp):
+    """
+    Plots data and generates summary results
+    """
 
     top_terms_fp = "./results/top_tags.txt"
     metadata_fp = "./data/matrix_files/metadata0.tsv"
@@ -164,6 +173,9 @@ def plot(clustering_fp, out_fp):
 
 
 def cluster_all(n=10, postfix=""):
+    """
+    Clusters data using all data
+    """
     data_fp = "data/matrix_files/all.csv"
     closest_centers = run_lloyds(data_fp, n)
     out_fp = "./results/clusterings_with_all" + postfix + ".txt"
@@ -173,6 +185,9 @@ def cluster_all(n=10, postfix=""):
             f.write("%s\n" % center)
 
 def cluster_timbre(n=10):
+    """
+    Clusters data using only timbre data
+    """
 
     data_fp = "data/matrix_files/timbre_matrix0.csv"
     closest_centers = run_lloyds(data_fp, n)
@@ -183,6 +198,11 @@ def cluster_timbre(n=10):
             f.write("%s\n" % center)
 
 def run(k, n):
+    """
+    Does entire run: processes raw data, runs clustering
+    and generates summary results
+    Usage: python3 run.py run k n
+    """
     k = int(k)
     n = int(n)
     postfix = "_{}_{}".format(k, n)
@@ -191,7 +211,7 @@ def run(k, n):
     # data_fp = "data/matrix_files/all.csv"
     print("Running with k={} and n={}".format(k, n))
 
-    #process_raw_data(k)
+    process_raw_data(k)
     to_matrix()
     to_all()
     cluster_all(n, postfix)

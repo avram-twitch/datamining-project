@@ -197,25 +197,27 @@ def cluster_timbre(n=10):
         for center in closest_centers:
             f.write("%s\n" % center)
 
-def run(k, n):
+def run(*args):
     """
     Does entire run: processes raw data, runs clustering
     and generates summary results
-    Usage: python3 run.py run k n
+    Usage: python3 run.py run k [ns...]
     """
-    k = int(k)
-    n = int(n)
-    postfix = "_{}_{}".format(k, n)
-    clustering_fp = "./results/clusterings_with_all" + postfix + ".txt"
-    out_fp = "./results/all_summaries" + postfix + ".txt"
-    # data_fp = "data/matrix_files/all.csv"
-    print("Running with k={} and n={}".format(k, n))
+    k = int(args[0])
+    ns = args[1:]
+    ns = [int(n) for n in ns]
+    print("Running with k={} and n={}".format(k, ns))
 
     process_raw_data(k)
     to_matrix()
     to_all()
-    cluster_all(n, postfix)
-    plot(clustering_fp, out_fp)
+    for n in ns:
+        print("Clustering with n={}".format(n))
+        postfix = "_{}_{}".format(k, n)
+        clustering_fp = "./results/clusterings_with_all" + postfix + ".txt"
+        out_fp = "./results/all_summaries" + postfix + ".txt"
+        cluster_all(n, postfix)
+        plot(clustering_fp, out_fp)
 
 def to_all():
     folder = "./data/matrix_files/"

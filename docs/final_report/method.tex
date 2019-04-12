@@ -1,0 +1,14 @@
+To identify similarities between songs, we used an extension of Lloyd's clustering algorithm.
+Since we are focusing on finding progenitors, we wanted to adapt Lloyd's algorithm
+in a way that would place cluster centers around the oldest songs in the dataset.
+That way, we could attempt cluster all songs--both old and newer songs--
+around characteristics of older songs.
+
+Normal Lloyd's clustering sets each cluster's center as the average of all data points in the cluster.
+Our extension only looks at the oldest songs (by release year) in each cluster,
+and sets the center as the average of those oldest songs.
+
+One parameter to consider with our clustering extension is how do we define the "oldest" songs.
+For example, we could consider it as the oldest 1, 5, or 10\% of the songs in a cluster.
+However, for this report, we defined this as the earliest year of release in a cluster.
+All songs that were released that year in the cluster are averaged to be set as the center.

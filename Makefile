@@ -1,21 +1,9 @@
 PIP = pip
 PYTHON = python3
 
-.PHONY: agg_data
+.PHONY: agg-data
 agg-data:
 	find ./MillionSongSubset/data/ -name "*.h5" -type f -exec mv {} ./raw_data/ \;
-
-.PHONY: process_raw
-process_raw:
-	$(PYTHON) ./run.py process_raw
-
-.PHONY: to_matrix
-to_matrix:
-	$(PYTHON) ./run.py to_matrix
-
-.PHONY: lsh
-lsh:
-	$(PYTHON) ./run.py run_lsh
 
 .PHONY: lint 
 lint:
@@ -30,6 +18,9 @@ docs:
 .PHONY: setup
 setup:
 	$(PIP) install -r requirements.txt
+	mkdir ./raw_data/
+	mkdir -p ./data/matrix_files/
+	mkdir -p ./data/pickled_files/
 
 .PHONY: test
 test: lint

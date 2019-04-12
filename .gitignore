@@ -12,3 +12,5 @@ tags
 data/
 env/
 *.png
+*.aux
+*.log

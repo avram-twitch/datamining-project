@@ -25,6 +25,7 @@ lint:
 docs:
 	pandoc -s -o ./docs/data_collection.pdf ./docs/data_collection.md
 	pandoc -s -o ./docs/proposal.pdf ./docs/proposal.md
+	$(MAKE) -C ./docs/final_report/ docs
 
 .PHONY: setup
 setup:

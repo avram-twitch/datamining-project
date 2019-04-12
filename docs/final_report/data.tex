@@ -1,0 +1,23 @@
+To explore these relationships, we used the Million Song Dataset.
+This is a freely-available dataset consists of features and metadata on one million contemporary songs,
+produced by The Echo Nest.
+While the dataset does not include actual audio,
+its features include a large variety of measurements.
+
+Many features come from analyzing segments of a song:
+each song is divided into many segments, and measurements are made on each segment.
+These measurements include features such as loudness or pitch.
+Other features are more summary variables on the entire song, such as "danceability."
+For the purposes of our analysis, we focused on the segmented features,
+and did not use any "summary" variables.
+We did this to see if we could identify aural commonalities within the songs themselves,
+rather than broad measurements of the entire song.
+
+We preprocessed these segmentet measures by using the idea of k-grams.
+That is, for a measure like "loudness", we took $k$ consecutive measures of loudness
+in a song.
+We count that sequence of loudness as a unique variable.
+We then represent each song as a count of the occurrences of each sequence for every variable.
+Thus our preprocessed dataset is a sparse matrix of variable counts.
+
+% Maybe some summary statistics or charts?

@@ -21,6 +21,8 @@ class Plotter:
             cluster = str(i)
             self.unfiltered_counts[cluster] = count
 
+        self.LARGE = 100
+
     def filter_data(self, decade="all", term=None):
         if decade == "all":
             data = self.all_data
@@ -86,6 +88,79 @@ class Plotter:
         filtered = self.filter_data(decade, term)
         plot_data = self.summarize_to_clusters(filtered)
         self.plot(plot_fp, plot_data, show)
+
+    def get_top_n_genres(self, n=5):
+
+        genres = self.get_genre_counts(self.all_data)
+        length = len(self.all_data)
+        out = {}
+        for key, value in sorted(genres.items(), key=lambda item: item[1], reverse=True):
+            if j == n:
+                break
+            out[key] = {}
+            out[key]['count'] = value
+            out[key]['perc'] = float(value) / length
+            j += 1
+
+        return out
+
+    def get_top_n_genres_per_cluster(self, n=5, large=True):
+
+        for i in range(self.n_clusters):
+            cluster = str(i)
+            c_data = [x for x in self.all_data if x['cluster'] == cluster]
+            data_length = len(c_data)
+            if large and data_length < self.LARGE:
+                continue
+            genres = self.get_genre_counts(c_data)
+            print("Cluster {}".format(cluster))
+            j = 0
+            for key, value in sorted(genres.items(), key=lambda item: item[1], reverse=True):
+                if j == n:
+                    break
+                print("{}. {}: {} ({})".format(j + 1, key, value, float(value)/data_length))
+                j += 1
+
+            print()
+
+    def get_top_n_genres_all_data(self, n=5, large=True):
+
+        genres = self.get_genre_counts(self.all_data)
+
+        j = 0
+        for key, value in sorted(genres.items(), key=lambda item: item[1], reverse=True):
+            if j == n:
+                break
+
+            all_perc = float(value) / len(self.all_data)
+            print("Term {}. {}: {}--{:.2f}".format(j, key, value, all_perc))
+            for i in range(self.n_clusters):
+                cluster = str(i)
+                c_data = [x for x in self.all_data if x['cluster'] == cluster]
+                cluster_len = len(c_data)
+                cluster_genres = self.get_genre_counts(c_data)
+                cluster_count = cluster_genres.get(key, 0)
+                cluster_perc = float(cluster_count) / cluster_len
+                diff = all_perc - cluster_perc
+                if large and cluster_len < self.LARGE:
+                    continue
+                print("Cluster {}: {}--{:.2f} ({:.2f})".format(cluster, cluster_count, cluster_perc, diff))
+
+            j += 1
+            print()
+
+
+    def get_genre_counts(self, data):
+        genres = {}
+        data_length = len(data)
+        for item in data:
+            for term in item['terms']:
+                genres[term] = genres.get(term, 0) + 1
+
+        for key, value in genres.items():
+            genres[key] = value
+        return genres
+
 
     def print_decade_counts(self):
 

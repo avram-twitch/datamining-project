@@ -1,4 +1,6 @@
-To identify similarities between songs, we used an extension of Lloyd's clustering algorithm.
+\subsection{Lloyd's Extension}
+
+To identify similarities between songs, we extended the Lloyd's clustering algorithm.
 Since we are focusing on finding progenitors, we wanted to adapt Lloyd's algorithm
 in a way that would place cluster centers around the oldest songs in the dataset.
 That way, we could attempt cluster all songs--both old and newer songs--
@@ -12,3 +14,11 @@ One parameter to consider with our clustering extension is how do we define the 
 For example, we could consider it as the oldest 1, 5, or 10\% of the songs in a cluster.
 However, for this report, we defined this as the earliest year of release in a cluster.
 All songs that were released that year in the cluster are averaged to be set as the center.
+
+\subsection{Expectations}
+
+As far as expectations for results, we hope to see good separation between genres, and perhaps between artists as well.
+This is because if our "musical lineage" hypothesis is correct,
+we would expect to see very distinct genres in separate clusters with their "ancestors".
+We don't expect to see good separation across years or decades,
+because presumably the influence of progenitors will be present throughout the decades.

@@ -14,6 +14,19 @@ class Analyzer:
         self.counts = self._generate_counts(self.all_data)
         self.ord_counts = self._generate_ordered_counts(self.counts)
 
+    def get_c_run(self, k, n, large=True):
+        run_key = self._create_kn_key(k, n)
+        out = []
+        for i in range(n):
+            cluster = str(i)
+            c_data = self._filter_by(self.all_data, (run_key, cluster))
+            c_size = len(c_data)
+            if large and c_size < self.LARGE:
+                continue
+            out.append(c_data)
+
+        return out
+
     def get_top_n(self, key, n=5):
         return self.ord_counts[key][:n]
 

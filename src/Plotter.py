@@ -1,69 +1,91 @@
 import matplotlib.pyplot as plt
+import seaborn as sns
 import numpy as np
 
 
 class Plotter:
 
-    def __init__(self, results_fp, metadata_fp, terms_fp):
-        self.data, self.counts = self.extract_clusters(results_fp)
-        self.years, self.year_counts = self.extract_years(metadata_fp)
-        self.terms, self.term_counts = self.extract_terms(terms_fp)
-        self.decades, self.decade_counts = self.years_to_decades(self.years)
-        self.all_data = self.combine_data(self.data,
-                                          self.decades,
-                                          self.terms)
-        self.n_clusters = len(self.counts.keys())
-        self.xlims = (-1.1, 1.1)
-        self.ylims = (-1.1, 1.1)
-        self.unfiltered_counts = {}
-        for i in range(self.n_clusters):
-            count = len([x for x in self.all_data if x['cluster'] == str(i)])
-            cluster = str(i)
-            self.unfiltered_counts[cluster] = count
+    def __init__(self):
+        self.xlims = [-1.1, 1.1]
+        self.ylims = [-1.1, 1.1]
 
-        self.LARGE = 100
+    def plot_sds_of_top_n_variables(self, plot_fp, analyzer, var, values, ks, ns, show=False):
+        data = np.zeros((len(ks) * len(ns), len(values)))
+        i = 0
+        for v in values:
+            sds = self._get_sds(analyzer, var, v, ks, ns)
+            j = 0
+            for sd in sds:
+                data[j][i] = sd
+                j += 1
+            i += 1
 
-    def filter_data(self, decade="all", term=None):
-        if decade == "all":
-            data = self.all_data
-        else:
-            data = [x for x in self.all_data if x['decade'] == decade]
+        keys = []
+        for k in ks:
+            for n in ns:
+                key = self._create_kn_key(k, n)
+                keys.append(key)
 
-        if term is not None:
-            data = [x for x in data if term in x['terms']]
+        ax = sns.heatmap(data, xticklabels=values, yticklabels=keys)
+        plt.savefig(plot_fp)
+        if show:
+            plt.show()
+        plt.clf()
 
-        return data
 
-    def summarize_to_clusters(self, data):
-        out_data = {}
-        all_percentages = []
-        for i in range(self.n_clusters):
-            cluster = str(i)
-            curr_data = [x for x in data if x['cluster'] == cluster]
-            count = len(curr_data)
-            percentage = float(count) / self.unfiltered_counts[cluster]
-            all_percentages.append(percentage)
-            curr = {}
-            curr['count'] = count
-            curr['total_count'] = self.unfiltered_counts[cluster]
-            curr['percentage'] = percentage
-            curr['cluster'] = cluster
-            out_data[cluster] = curr
+    def _get_sds(self, analyzer, var, val, ks, ns):
+        out = []
+        runs = analyzer.get_all_cluster_counts(var, val, True)
+        for k in ks:
+            for n in ns:
+                run_key = self._create_kn_key(k, n)
+                run = runs[run_key]
+                sd = self._get_std_dev_from_counts(run)
+                out.append(sd)
 
-        mean_p = np.mean(all_percentages)
-        std_dev_p = np.std(all_percentages)
-        out_data['mean'] = mean_p
-        out_data['stddev'] = std_dev_p
-        return out_data
+        return out
 
-    def plot(self, plot_fp, plot_data, show):
+    def plot_clustering_std_devs(self, plot_fp, runs, ks, ns, show=False):
+        i = 0
+        results = np.zeros((len(ks), len(ns)))
+        k_count = 0
+        n_count = 0
+        min_n = min(ns)
+        max_n = max(ns)
+        min_k = min(ks)
+        max_k = max(ks)
 
-        for i in range(self.n_clusters):
-            cluster = str(i)
-            curr_data = plot_data[cluster]
-            count = curr_data['count']
-            unfiltered_count = curr_data['total_count']
-            perc = curr_data['percentage'] * 100
+        for k in ks:
+            for n in ns:
+                run_key = self._create_kn_key(k, n)
+                run = runs[run_key]
+                sd = self._get_std_dev_from_counts(run)
+                results[k_count, n_count] = sd
+                n_count += 1
+            n_count = 0
+            k_count += 1
+
+        extent = (min_n, max_n, min_k, max_k)
+        # plt.imshow(results, cmap='hot', interpolation='nearest', extent=extent)
+        ax = sns.heatmap(results, xticklabels=ns, yticklabels=ks)
+
+        plt.savefig(plot_fp)
+        if show:
+            plt.show()
+        plt.clf()
+
+    def plot_instances(self, plot_fp, plot_data, filters, show):
+
+        all_count = sum([len(x) for x in plot_data])
+        i = 0
+        for cluster in plot_data:
+            unfiltered_count = len(cluster)
+            f_cluster = cluster
+            for _filter in filters:
+                f_cluster = self._filter_by(f_cluster, _filter)
+
+            count = len(f_cluster)
+            perc = float(count) / unfiltered_count * 100
 
             # Is there a smart, automatic way to determine a good layout?
             ax = plt.subplot(5, 2, i + 1)
@@ -78,174 +100,29 @@ class Plotter:
             plt.text(0, 0, "{}/{}\n{:.0f}%".format(count,
                                                    unfiltered_count,
                                                    perc))
+            i += 1
 
         plt.savefig(plot_fp)
         if show:
             plt.show()
         plt.clf()
 
-    def filter_and_plot(self, plot_fp, decade="all", term=None, show=True):
-        filtered = self.filter_data(decade, term)
-        plot_data = self.summarize_to_clusters(filtered)
-        self.plot(plot_fp, plot_data, show)
+    def _filter_by(self, data, f_tuple):
+        key, value = f_tuple
+        if value is None:
+            return data
 
-    def get_top_n_genres(self, n=5):
+        if key == 'term':
+            return [x for x in data if value in x[key]]
+        else:
+            return [x for x in data if x[key] == value]
 
-        genres = self.get_genre_counts(self.all_data)
-        length = len(self.all_data)
-        out = {}
-        for key, value in sorted(genres.items(), key=lambda item: item[1], reverse=True):
-            if j == n:
-                break
-            out[key] = {}
-            out[key]['count'] = value
-            out[key]['perc'] = float(value) / length
-            j += 1
+    def _create_kn_key(self, k, n):
+        return "{}_{}".format(k, n)
 
-        return out
+    def _get_std_dev_from_counts(self, run):
+        values = []
+        for count, total in run:
+            values.append(float(count) / total)
 
-    def get_top_n_genres_per_cluster(self, n=5, large=True):
-
-        for i in range(self.n_clusters):
-            cluster = str(i)
-            c_data = [x for x in self.all_data if x['cluster'] == cluster]
-            data_length = len(c_data)
-            if large and data_length < self.LARGE:
-                continue
-            genres = self.get_genre_counts(c_data)
-            print("Cluster {}".format(cluster))
-            j = 0
-            for key, value in sorted(genres.items(), key=lambda item: item[1], reverse=True):
-                if j == n:
-                    break
-                print("{}. {}: {} ({})".format(j + 1, key, value, float(value)/data_length))
-                j += 1
-
-            print()
-
-    def get_top_n_genres_all_data(self, n=5, large=True):
-
-        genres = self.get_genre_counts(self.all_data)
-
-        j = 0
-        for key, value in sorted(genres.items(), key=lambda item: item[1], reverse=True):
-            if j == n:
-                break
-
-            all_perc = float(value) / len(self.all_data)
-            print("Term {}. {}: {}--{:.2f}".format(j, key, value, all_perc))
-            for i in range(self.n_clusters):
-                cluster = str(i)
-                c_data = [x for x in self.all_data if x['cluster'] == cluster]
-                cluster_len = len(c_data)
-                cluster_genres = self.get_genre_counts(c_data)
-                cluster_count = cluster_genres.get(key, 0)
-                cluster_perc = float(cluster_count) / cluster_len
-                diff = all_perc - cluster_perc
-                if large and cluster_len < self.LARGE:
-                    continue
-                print("Cluster {}: {}--{:.2f} ({:.2f})".format(cluster, cluster_count, cluster_perc, diff))
-
-            j += 1
-            print()
-
-
-    def get_genre_counts(self, data):
-        genres = {}
-        data_length = len(data)
-        for item in data:
-            for term in item['terms']:
-                genres[term] = genres.get(term, 0) + 1
-
-        for key, value in genres.items():
-            genres[key] = value
-        return genres
-
-
-    def print_decade_counts(self):
-
-        for i in range(1900, 2016, 1):
-            key = str(i)
-            try:
-                value = self.decade_counts[key]
-                print("{}: {}".format(key, value))
-            except KeyError:
-                pass
-
-    def print_year_counts(self):
-        for i in range(1900, 2016, 1):
-            key = str(i)
-            try:
-                value = self.year_counts[key]
-                print("{}: {}".format(key, value))
-            except KeyError:
-                pass
-
-    def print_cluster_counts(self):
-
-        for i in range(10):
-            key = str(i)
-            value = self.counts[key]
-            print("{}: {}".format(key, value))
-
-    def extract_clusters(self, fp):
-        data = []
-        counts = {}
-        with open(fp, 'r') as f:
-            for line in f:
-                curr = line.split("\n")[0]
-                data.append(curr)
-                counts[curr] = counts.get(curr, 0) + 1
-
-        return data, counts
-
-    def extract_years(self, fp):
-        years = []
-        year_counts = {}
-
-        with open(fp, 'r') as f:
-            for line in f:
-                curr = line.split("\n")[0]
-                curr = curr.split("\t")
-                year = curr[3]
-                years.append(year)
-                year_counts[year] = year_counts.get(year, 0) + 1
-
-        return years, year_counts
-
-    def extract_terms(self, fp):
-        all_terms = []
-        term_counts = {}
-
-        with open(fp, 'r') as f:
-            for line in f:
-                curr_terms = line.split("\n")[0]
-                curr_terms = curr_terms.split(",")
-                all_terms.append(curr_terms)
-                for term in curr_terms:
-                    term_counts[term] = term_counts.get(term, 0) + 1
-        return all_terms, term_counts
-
-    def years_to_decades(self, years):
-        decades = []
-        decade_counts = {}
-        for year in years:
-            year = int(year)
-            decade = year - (year % 10)
-            decade = str(decade)
-            decades.append(decade)
-            decade_counts[decade] = decade_counts.get(decade, 0) + 1
-
-        return decades, decade_counts
-
-    def combine_data(self, data, decades, terms):
-
-        all_data = []
-        for i in range(len(data)):
-            curr = {}
-            curr['cluster'] = data[i]
-            curr['decade'] = decades[i]
-            curr['terms'] = terms[i]
-            all_data.append(curr)
-
-        return all_data
+        return np.std(values)

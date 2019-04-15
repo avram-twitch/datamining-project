@@ -10,6 +10,7 @@ from src.DictToMatrix import DictToMatrix
 from src.LloydsClustering import LloydsClustering
 from src.KPlusPlus import KPlusPlus
 from src.Plotter import Plotter
+from src.Analyzer import Analyzer
 
 
 def process_raw_data(k=4):
@@ -111,9 +112,7 @@ def plot_all():
     """
     Plots using all data
     """
-    clustering_fp = "./results/clusterings_with_all.txt"
-    out_fp = "./results/all_summaries.csv"
-    plot(clustering_fp, out_fp)
+    plot_cluster()
 
 
 def plot_timbre():
@@ -125,51 +124,45 @@ def plot_timbre():
     plot(clustering_fp, out_fp)
 
 
-def plot(clustering_fp, out_fp):
+def plot_cluster_instances():
     """
-    Plots data and generates summary results
+    Plots data counts of top 5 terms across decades
     """
 
-    top_terms_fp = "./results/top_tags.txt"
+    clustering_fp = "./results/clusterings_with_all.txt"
+    out_fp = "./results/all_summaries.csv"
+
+    ks = [3, 4, 5]
+    ns = [4, 5, 6, 7, 8, 9]
     metadata_fp = "./data/matrix_files/metadata0.tsv"
     terms_fp = "./data/matrix_files/terms0.csv"
     results_folder = "./results/"
 
-    top_terms = []
-    with open(top_terms_fp, 'r') as f:
-        for line in f:
-            curr = line.split("\n")[0]
-            top_terms.append(curr)
+    files = []
+    for k in ks:
+        for n in ns:
+            fp = "./results/clusterings_with_all_{}_{}.txt".format(k, n)
+            curr = (fp, k, n)
+            files.append(curr)
 
+    analyzer = Analyzer(files, metadata_fp, terms_fp)
+    top_terms = analyzer.get_top_n('term', 10)
+    top_terms = [x[0] for x in top_terms]
     top_terms.append(None)
+
     decades = [str(x) for x in range(1950, 2020, 10)]
-    decades.append("all")
+    decades.append(None)
 
     all_summaries = []
-    plotter = Plotter(clustering_fp, metadata_fp, terms_fp)
+    plotter = Plotter()
     for term in top_terms:
         for decade in decades:
-            curr = []
-            filtered = plotter.filter_data(decade, term)
-            summary = plotter.summarize_to_clusters(filtered)
-            curr.append(decade)
-            curr.append(term)
-            curr.append(summary['mean'])
-            curr.append(summary['stddev'])
-            all_summaries.append(curr)
-
-    sorted_summaries = sorted(all_summaries,
-                              key=operator.itemgetter(3),
-                              reverse=True)
-    for i in range(10):
-        decade = sorted_summaries[i][0]
-        term = sorted_summaries[i][1]
-        fp = "{}{}-{}-plot.png".format(results_folder, decade, term)
-        plotter.filter_and_plot(fp, decade, term, False)
-
-    with open(out_fp, 'w') as f:
-        wr = csv.writer(f)
-        wr.writerows(all_summaries)
+            fp = "{}{}-{}-plot.png".format(results_folder, decade, term)
+            term_filter = ('term', term)
+            decade_filter = ('decade', decade)
+            filters = [term_filter, decade_filter]
+            c_data = analyzer.get_c_run(4, 9, True)
+            plotter.plot_instances(fp, c_data, filters, False)
 
 
 def cluster_all(n=10, postfix=""):
@@ -211,13 +204,11 @@ def run(*args):
     process_raw_data(k)
     to_matrix()
     to_all()
-    for n in ns:
+    for n in ns_cluster:
         print("Clustering with n={}".format(n))
         postfix = "_{}_{}".format(k, n)
-        clustering_fp = "./results/clusterings_with_all" + postfix + ".txt"
         out_fp = "./results/all_summaries" + postfix + ".txt"
         cluster_all(n, postfix)
-        plot(clustering_fp, out_fp)
 
 def to_all():
     folder = "./data/matrix_files/"
@@ -237,7 +228,7 @@ if __name__ == '__main__':
                'process_raw': process_raw_data,
                'cluster_all': cluster_all,
                'cluster_timbre': cluster_timbre,
-               'plot': plot,
+               'plot_cluster': plot_cluster,
                'run': run,
                'plot_all': plot_all,
                'plot_timbre': plot_timbre}

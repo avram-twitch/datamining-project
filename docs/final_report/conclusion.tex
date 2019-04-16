@@ -1,17 +1,26 @@
 It's hard to put a lot of work into an idea that generates no results.
-It's helpful to think that we did not fail, we just found a way that doesn't work!
 However, such a result does provide a lot of room for reflection, learning, and considerations on how to move forward.
 We discuss below some of the broader ideas we learned.
 
 \subsection{Going Forward}
 
-Our approach to finding musical progenitors yielded no results,
-but we have ideas for how we could potentially get our method to work in the future.
-As mentioned above in the methods section,
-on approach we could change is how we define the "oldest" songs in a cluster.
-Tweaking that parameter would change how the centers are decided, and could potentially yield better results.
+We showed that, as is, our extension of the Lloyds algorithm is ineffective at identifying musical "progenitors."
+But while our current approach yielded no results,
+we have ideas for how we could potentially get our method to work in the future.
 
-Another approach would be to use different variables.
+One issue is that we select the oldest songs in a cluster at each step.
+There is no guarantee that any intermediate cluster in the algorithm is well separated,
+and yet the oldest songs are treated as centers.
+Perhaps a better approach would be to run a normal Lloyd's algorithm,
+and only after those clusters are determined do we select the oldest among the clusters,
+and then repeat the Lloyds algorithm again, until convergence.
+
+Another issue, as mentioned above in the methods section,
+is how we define the "oldest" songs in a cluster.
+Tweaking that parameter would change how the centers are decided,
+and could potentially yield better results.
+
+Lastly, we could use different variables or features.
 We used every segmented variable available to us, but we left out the summarized variables.
 With the high dimensionality of the segmented variables, this may not impact it too much.
 

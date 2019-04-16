@@ -10,6 +10,18 @@ class Plotter:
         self.xlims = [-1.1, 1.1]
         self.ylims = [-1.1, 1.1]
 
+    def plot_bar_all_counts(self, plot_fp, counts, var, values):
+        data = []
+        y_pos = np.arange(len(values))
+        for val in values:
+            curr = counts[var][val]
+            data.append(curr)
+        
+        plt.bar(y_pos, data, align='center', alpha=0.5)
+        plt.xticks(y_pos, values)
+        plt.savefig(plot_fp)
+        plt.clf()
+
     def plot_single_run(self, plot_fp, run, var, values, diff=True):
         n_clusters = len(run)
         data = np.zeros((n_clusters + 1, len(values)))

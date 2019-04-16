@@ -55,6 +55,10 @@ def plot_single_run(run, top_terms, top_artists, decades):
     plotter.plot_single_run("./results/decades_cluster.png", run, 'decade', decades)
     plotter.plot_single_run("./results/artists_cluster.png", run, 'artist', top_artists)
 
+def plot_counts(fp, counts, var, values):
+    plotter = Plotter()
+    plotter.plot_bar_all_counts(fp, counts, var, values)
+
 if __name__=='__main__':
 
     ks = [3, 4, 5]
@@ -83,4 +87,8 @@ if __name__=='__main__':
 #    plot_percs_away("./results/perc_away_decades.png", analyzer, 'decade', decades, ks, ns)
 #    plot_percs_away("./results/perc_away_trunc_decades.png", analyzer, 'decade', trunc_decades, ks, ns)
 
-    plot_single_run(analyzer.get_c_run(5, 4, large=False), top_terms, top_artists, decades)
+#    plot_single_run(analyzer.get_c_run(5, 4, large=False), top_terms, top_artists, decades)
+    plot_counts("./results/decade_counts.png", analyzer.counts, 'decade', decades)
+    plot_counts("./results/term_counts.png", analyzer.counts, 'term', top_terms)
+    plot_counts("./results/artist_counts.png", analyzer.counts, 'artist', top_artists)
+
